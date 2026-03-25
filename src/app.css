@@ -1,0 +1,77 @@
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
+:root {
+  --bg-color: #1a1a1a;
+  --panel-bg: #2a2a2a;
+  --text-main: #e0e0e0;
+  --text-accent: #f1c40f; /* Gold color */
+  --border-color: #4a4a4a;
+  --hover-color: #3a3a3a;
+  --font-pixel: "VT323", monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-pixel);
+  font-size: 24px;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+  user-select: none;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: normal;
+  color: var(--text-accent);
+}
+
+button,
+.btn {
+  display: inline-block;
+  background-color: var(--panel-bg);
+  color: var(--text-main);
+  border: 4px solid var(--border-color);
+  font-family: var(--font-pixel);
+  font-size: 24px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
+  image-rendering: pixelated;
+  /* Pixel art style box shadow / border effect */
+  box-shadow: 4px 4px 0px #000;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+button:hover,
+.btn:hover,
+.btn:focus-within {
+  background-color: var(--hover-color);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000;
+  outline: none;
+}
+
+button:active,
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #000;
+}
+
+.panel {
+  background-color: var(--panel-bg);
+  border: 4px solid var(--border-color);
+  padding: 20px;
+  box-shadow: 8px 8px 0px #000;
+}

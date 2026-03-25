@@ -1,0 +1,6 @@
+# Project Context
+
+- We are building a Dragon Hoard Idle Game using SvelteKit (Svelte 5 runes).
+- The visual style is Pixel Art with dark themes.
+- Always default to creating and modifying files in **TypeScript**.
+- **Agent Instruction**: Whenever running `npm run check` or `npm run lint` via the terminal, set `WaitMsBeforeAsync` to 30000 (30 seconds) or more to guarantee it successfully runs synchronously.
