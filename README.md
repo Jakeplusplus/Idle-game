@@ -1,42 +1,26 @@
-# sv
+# Dragon Hoard Idle Game 🐉
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+An idle/incremental game built with **SvelteKit** and **Vite+** where you manage a dragon's expanding hoard of gold and ore! Train a legion of minions—from Pseudodragons to Kobolds—to exponentially grow your riches.
 
-## Creating a project
+## About This Project
 
-If you're seeing this, you've probably already done this step. Congrats!
+This game is more than just a fun side project; it is an active sandbox and learning experiment! The primary intent behind building this repository is to actively experiment with AI coding assistants.
 
-```sh
-# create a new project
-npx sv create my-app
+By strategically steering the architectural decisions, refactoring mathematical UI logic, and crafting new idle features in tandem with AI, I am using this project to evaluate AI capabilities and practically determine the exact balance of AI-assisted generation versus manual coding that feels best for my workflow across future software projects.
+
+## Framework & Toolchain
+
+- **Frontend**: SvelteKit (utilizing modern Svelte 5 Runes)
+- **Toolchain**: Vite+ (Unified toolchain encompassing pnpm, oxlint, and vitest)
+- **State Management**: Native proxy `$state` classes separating pure logic from LocalStorage syncs
+- **Aesthetic**: Deeply stylized, crisp vanilla CSS focused on retro pixel-art themes
+
+## Running Locally
+
+To spin up the hoard and start accumulating gold, utilize the unified Vite+ binary wrapper to launch the development server:
+
+```bash
+vp dev
 ```
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.12.8 create --template minimal --types jsdoc --add sveltekit-adapter="adapter:static" --no-install .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Open up the provided `localhost` link in your browser and start expanding your mountain!
