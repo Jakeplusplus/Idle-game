@@ -2,34 +2,148 @@ import { browser } from "$app/environment";
 import { game } from "./gameState.svelte.js";
 import { saveGame, loadGame } from "./storage.svelte.js";
 import type { Minions } from "./types.js";
-import { MOUNTAIN_LAYERS } from "./config.js";
+import { MOUNTAIN_LAYERS } from "./configs/mountain.js";
+import { MINIONS } from "./configs/minions.js";
+import { BUILDINGS } from "./configs/buildings.js";
+import { UPGRADES } from "./configs/upgrades.js";
+import { TRADING } from "./configs/trading.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
 export { game } from "./gameState.svelte.js";
 
-export function calculatePassiveIncome() {
-  let income =
-    game.minions.pseudodragon * 0.1 + game.minions.kobold * 1 + game.minions.lizardfolk * 5;
+export function getCurrentCapacityLimit() {
+  let limit = 0; // Base baseline capacity
+  for (let i = 0; i <= game.mountain.currentLayerIndex; i++) {
+    if (MOUNTAIN_LAYERS[i]) limit += MOUNTAIN_LAYERS[i].maxCapacity;
+  }
+  return limit;
+}
 
-  const luckMultiplier = 1 + game.stats.luck * 0.05;
-  const treasureMultiplier = 1 + game.treasuresFound * 0.1; // +10% per treasure found
-  return income * luckMultiplier * treasureMultiplier;
+function isWholePositiveNumber(amount: number) {
+  return Number.isFinite(amount) && Number.isInteger(amount) && amount > 0;
+}
+
+export function buyBuilding(id: string) {
+  const building = BUILDINGS.find((b) => b.id === id);
+  if (!building || game.gold < building.goldCost || game.buildings[id]) return;
+  game.gold -= building.goldCost;
+  game.buildings[id] = true;
+}
+
+export function buyUpgrade(id: string) {
+  const upgrade = UPGRADES.find((u) => u.id === id);
+  if (
+    !upgrade ||
+    !game.buildings[upgrade.buildingId] ||
+    game.ore < upgrade.oreCost ||
+    game.upgrades[id]
+  ) {
+    return;
+  }
+  game.ore -= upgrade.oreCost;
+  game.upgrades[id] = true;
+
+  if (upgrade.effect === "unlock_layer_1" && game.mountain.currentLayerIndex < 1) {
+    game.mountain.currentLayerIndex = 1;
+  } else if (upgrade.effect === "unlock_layer_2" && game.mountain.currentLayerIndex < 2) {
+    game.mountain.currentLayerIndex = 2;
+  } else if (upgrade.effect === "unlock_layer_3" && game.mountain.currentLayerIndex < 3) {
+    game.mountain.currentLayerIndex = 3;
+  }
+}
+
+export function calculatePassiveOre() {
+  let ore = 0;
+  for (const minion of MINIONS) {
+    if (minion.orePerSec) {
+      ore += game.minions[minion.id] * minion.orePerSec;
+    }
+  }
+  return ore;
+}
+
+export function calculatePassiveCapacity() {
+  let cap = 0;
+  for (const minion of MINIONS) {
+    if (minion.capacityPerSec) {
+      cap += game.minions[minion.id] * minion.capacityPerSec;
+    }
+  }
+
+  let multiplier = 1;
+  for (const upgradeId in game.upgrades) {
+    if (game.upgrades[upgradeId]) {
+      const config = UPGRADES.find((u) => u.id === upgradeId);
+      if (config?.capacityMultiplier) {
+        multiplier += config.capacityMultiplier;
+      }
+    }
+  }
+
+  return cap * multiplier;
+}
+
+export function calculatePassiveIncome() {
+  let income = 0;
+  for (const minion of MINIONS) {
+    if (minion.goldPerSec) {
+      income += game.minions[minion.id] * minion.goldPerSec;
+    }
+  }
+
+  return income;
+}
+
+export function buyOre(amount: number) {
+  if (!isWholePositiveNumber(amount)) return;
+  const cost = amount * TRADING.ORE_BUY_PRICE;
+  if (game.gold >= cost) {
+    game.gold -= cost;
+    game.ore += amount;
+    if (game.gold + game.ore > game.maxCapacity) {
+      game.ore = game.maxCapacity - game.gold;
+    }
+  }
+}
+
+export function sellOre(amount: number) {
+  if (!isWholePositiveNumber(amount)) return;
+  if (game.ore >= amount) {
+    const gain = amount * TRADING.ORE_SELL_PRICE;
+    game.ore -= amount;
+    game.gold += gain;
+    if (game.gold + game.ore > game.maxCapacity) {
+      game.gold = game.maxCapacity - game.ore;
+    }
+  }
 }
 
 export function clickGold() {
-  if (game.gold < game.maxGoldCapacity) {
+  const total = game.gold + game.ore;
+  if (total < game.maxCapacity) {
     game.gold += game.stats.clickPower;
-    if (game.gold > game.maxGoldCapacity) {
-      game.gold = game.maxGoldCapacity;
+    if (game.gold + game.ore > game.maxCapacity) {
+      game.gold = game.maxCapacity - game.ore;
     }
   }
+}
+
+export function clickBurrow() {
+  game.maxCapacity += game.stats.clickPower;
 }
 
 export function resetHoard() {
   game.gold = 0;
   game.ore = 0;
   game.minions = { pseudodragon: 0, kobold: 0, miner: 0, lizardfolk: 0 };
+  game.buildings = {};
+  game.upgrades = {};
+  game.mountain = {
+    coordinates: game.mountain.coordinates,
+    currentLayerIndex: 0,
+  };
+  game.maxCapacity = 0;
 }
 
 export function attractMate() {
@@ -79,29 +193,35 @@ export function startGameLoop() {
     const delta = (now - lastTick) / 1000;
     lastTick = now;
 
-    if (game.minions.miner > 0) {
-      game.ore += game.minions.miner * delta;
+    const totalOrePerSec = calculatePassiveOre();
+    const totalCapacityPerSec = calculatePassiveCapacity();
 
-      const currentLayer = MOUNTAIN_LAYERS[game.mountain.currentLayerIndex];
-      if (game.maxGoldCapacity < currentLayer.maxCapacity) {
-        game.maxGoldCapacity += game.minions.miner * 10 * delta;
-        if (game.maxGoldCapacity > currentLayer.maxCapacity) {
-          game.maxGoldCapacity = currentLayer.maxCapacity;
+    if (totalOrePerSec > 0 || totalCapacityPerSec > 0) {
+      const capacityLimit = getCurrentCapacityLimit();
+      if (game.maxCapacity < capacityLimit && totalCapacityPerSec > 0) {
+        game.maxCapacity += totalCapacityPerSec * delta;
+        if (game.maxCapacity > capacityLimit) {
+          game.maxCapacity = capacityLimit;
         }
       }
 
-      const chanceToFind = game.minions.miner * delta * 0.0001 * (1 + game.stats.luck * 0.05);
-      if (Math.random() < chanceToFind) {
-        game.treasuresFound += 1;
-        console.log("A Miner found a rare treasure!");
+      const totalResourcesForOre = game.gold + game.ore;
+      if (totalOrePerSec > 0 && totalResourcesForOre < game.maxCapacity) {
+        game.ore += totalOrePerSec * delta;
+        if (game.gold + game.ore > game.maxCapacity) {
+          game.ore = game.maxCapacity - game.gold;
+        }
       }
+
+      // Empty branch intentionally removed RNG drops
     }
 
     const incomePerSec = calculatePassiveIncome();
-    if (incomePerSec > 0 && game.gold < game.maxGoldCapacity) {
+    const currentTotal = game.gold + game.ore;
+    if (incomePerSec > 0 && currentTotal < game.maxCapacity) {
       game.gold += incomePerSec * delta;
-      if (game.gold > game.maxGoldCapacity) {
-        game.gold = game.maxGoldCapacity;
+      if (game.gold + game.ore > game.maxCapacity) {
+        game.gold = game.maxCapacity - game.ore;
       }
     }
 

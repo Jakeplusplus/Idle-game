@@ -1,7 +1,8 @@
 # Project Context
 
 - We are building a Dragon Hoard Idle Game using SvelteKit (Svelte 5 runes).
-- The visual style is Pixel Art with dark themes.
+- The visual style is Pixel Art.
 - Always default to creating and modifying files in **TypeScript**.
 - **Agent Instruction**: Whenever running codebase validations via the terminal, strictly utilize the Vite+ binary wrappers (`vp check` or `vp lint`) and set `WaitMsBeforeAsync` to 30000 or more to guarantee it successfully runs synchronously without ghost-killing the daemon.
 - **Toolchain Mastery**: You MUST strictly obey all Vite+ and pnpm lifecycle guidelines natively documented in `AGENTS.md`. Do *not* execute bare `npm`, `pnpm`, or `yarn` commands manually.
+- **Code Architecture**: Prioritize modular code abstraction over monolithic mega-files whenever possible.

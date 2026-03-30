@@ -1,4 +1,5 @@
 node_modules
+.pnpm-store
 
 # Output
 .output
@@ -7,10 +8,18 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+coverage
+.turbo
+.cache
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Editor and agent workspace state
+.claude/
+.cursor/
+.idea/
 
 # Env
 .env
