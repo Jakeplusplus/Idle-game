@@ -1,0 +1,96 @@
+import { beforeEach, describe, expect, test } from "vite-plus/test";
+import {
+  buyOre,
+  buyUpgrade,
+  clickBurrow,
+  getCurrentCapacityLimit,
+  sellOre,
+} from "./game.svelte.js";
+import { createDefaultGameState, game, replaceGameState } from "./gameState.svelte.js";
+import { hydrateGameState } from "./storage.svelte.js";
+
+describe("game rules", () => {
+  beforeEach(() => {
+    replaceGameState(createDefaultGameState());
+  });
+
+  test("hydrateGameState restores buildings and upgrades from saves", () => {
+    const hydrated = hydrateGameState({
+      gold: 250,
+      ore: 125,
+      buildings: { blacksmith: true },
+      upgrades: { copper_smelting: true },
+    });
+
+    expect(hydrated.gold).toBe(250);
+    expect(hydrated.ore).toBe(125);
+    expect(hydrated.buildings).toEqual({ blacksmith: true });
+    expect(hydrated.upgrades).toEqual({ copper_smelting: true });
+  });
+
+  test("hydrateGameState resets missing nested values back to defaults", () => {
+    const hydrated = hydrateGameState({
+      stats: { clickPower: 9 } as typeof game.stats,
+      minions: { kobold: 3 } as typeof game.minions,
+    });
+
+    expect(hydrated.stats).toEqual({
+      clickPower: 9,
+      luck: 1,
+      beauty: 1,
+      armor: 1,
+    });
+    expect(hydrated.minions).toEqual({
+      pseudodragon: 0,
+      kobold: 3,
+      miner: 0,
+      lizardfolk: 0,
+    });
+    expect(hydrated.buildings).toEqual({});
+    expect(hydrated.upgrades).toEqual({});
+  });
+
+  test("clickBurrow can dig beyond the unlocked layer capacity", () => {
+    game.maxCapacity = getCurrentCapacityLimit();
+    game.stats.clickPower = 3;
+
+    clickBurrow();
+
+    expect(game.maxCapacity).toBe(getCurrentCapacityLimit() + 3);
+  });
+
+  test("buyUpgrade requires its parent building", () => {
+    game.ore = 500;
+
+    buyUpgrade("copper_smelting");
+
+    expect(game.upgrades.copper_smelting).toBeUndefined();
+    expect(game.ore).toBe(500);
+    expect(game.mountain.currentLayerIndex).toBe(0);
+  });
+
+  test("buyUpgrade applies once the prerequisite building exists", () => {
+    game.ore = 500;
+    game.buildings.blacksmith = true;
+
+    buyUpgrade("copper_smelting");
+
+    expect(game.upgrades.copper_smelting).toBe(true);
+    expect(game.ore).toBe(300);
+    expect(game.mountain.currentLayerIndex).toBe(1);
+  });
+
+  test("trade actions ignore invalid amounts", () => {
+    game.gold = 100;
+    game.ore = 50;
+    game.maxCapacity = 500;
+
+    buyOre(1.5);
+    buyOre(-2);
+    sellOre(0);
+    sellOre(Number.NaN);
+
+    expect(game.gold).toBe(100);
+    expect(game.ore).toBe(50);
+  });
+});
