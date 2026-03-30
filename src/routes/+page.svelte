@@ -330,10 +330,7 @@
 <div class="container">
   <div class="glow glow-left" aria-hidden="true"></div>
   <div class="glow glow-right" aria-hidden="true"></div>
-  <div class="ash-layer ash-layer-top" aria-hidden="true"></div>
-  <div class="ash-layer ash-layer-bottom" aria-hidden="true"></div>
-
-  <header class="panel header magma-panel">
+  <header class="panel header forest-panel">
     <div class="panel-kicker">Hoard</div>
     <div class="panel-brackets" aria-hidden="true"></div>
     <div class="header-title-row">
@@ -367,7 +364,7 @@
   </header>
 
   <section class="hero-grid">
-    <div class="panel hoard-display magma-panel">
+    <div class="panel hoard-display forest-panel">
       <div class="panel-kicker">Timber Vault</div>
       <div class="panel-brackets" aria-hidden="true"></div>
       <div class="pixel-rivets" aria-hidden="true"></div>
@@ -466,7 +463,7 @@
     </div>
   </section>
 
-  <section class="panel magma-panel tabbed-wing">
+  <section class="panel forest-panel tabbed-wing">
     <div class="panel-kicker">Mountain Wings</div>
     <div class="panel-brackets" aria-hidden="true"></div>
     <div class="tab-strip" role="tablist" aria-label="Lair wings">
@@ -784,13 +781,10 @@
     flex-direction: column;
     gap: 24px;
   }
-  .glow,
-  .ash-layer {
+  .glow {
     position: fixed;
     pointer-events: none;
     z-index: 0;
-  }
-  .glow {
     width: 420px;
     height: 420px;
     border-radius: 50%;
@@ -812,30 +806,11 @@
     top: 340px;
     right: -160px;
   }
-  .ash-layer {
-    inset-inline: 0;
-    height: 120px;
-    opacity: 0.16;
-    background: linear-gradient(180deg, rgba(240, 248, 255, 0.05), transparent),
-      linear-gradient(90deg, rgba(98, 129, 106, 0.06), transparent 45%),
-      repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.06) 0 4px,
-        transparent 4px 12px
-      );
-  }
-  .ash-layer-top {
-    top: 0;
-  }
-  .ash-layer-bottom {
-    bottom: 0;
-    transform: rotate(180deg);
-  }
-  .container > :not(.glow):not(.ash-layer) {
+  .container > :not(.glow) {
     position: relative;
     z-index: 1;
   }
-  .magma-panel {
+  .forest-panel {
     position: relative;
     background: linear-gradient(
         180deg,
@@ -854,7 +829,7 @@
       8px 8px 0px #111511;
     overflow: hidden;
   }
-  .magma-panel::before {
+  .forest-panel::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -929,9 +904,7 @@
   }
   .header h1,
   .hoard-display h2,
-  .prestige-panel h3,
-  .scanner-panel h3,
-  .buildings-panel h3 {
+  .scanner-panel h3 {
     font-family: var(--font-display);
     font-size: clamp(1rem, 2vw, 1.45rem);
     line-height: 1.4;
@@ -1155,11 +1128,6 @@
     color: #cfe0df;
     font-size: 1rem;
   }
-  .mid-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: 24px;
-  }
   .tabbed-wing {
     display: flex;
     flex-direction: column;
@@ -1225,12 +1193,6 @@
   .scanner-panel :global(h3) {
     display: none;
   }
-  .purchase-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .options-dock {
     position: fixed;
     top: 20px;
@@ -1430,14 +1392,8 @@
     transform: none;
     box-shadow: 4px 4px 0px #000;
   }
-  .prestige-panel {
-    text-align: left;
-  }
   .unlock-badge {
     color: #b7d0a4;
-  }
-  .prestige-panel p {
-    margin-bottom: 15px;
   }
   button.glow {
     background-color: #a8c58e;
@@ -1467,14 +1423,7 @@
     font-size: 1rem;
     margin-left: 5px;
   }
-  .upgrades-container {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed #6d5b46;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+
   .upgrade-item {
     display: flex;
     flex-wrap: wrap;
@@ -1520,7 +1469,6 @@
 
   @media (max-width: 980px) {
     .hero-grid,
-    .mid-grid,
     .trade-market-grid,
     .resource-readout-grid,
     .income-rack,
