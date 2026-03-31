@@ -829,43 +829,10 @@
       8px 8px 0px #111511;
     overflow: hidden;
   }
-  .forest-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.04),
-        transparent 28%
-      ),
-      repeating-linear-gradient(
-        0deg,
-        rgba(151, 186, 142, 0.05) 0 2px,
-        transparent 2px 10px
-      );
-    opacity: 0.55;
-    pointer-events: none;
-  }
   .panel-brackets {
     position: absolute;
     inset: 10px;
     pointer-events: none;
-  }
-  .panel-brackets::before,
-  .panel-brackets::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(#c4b088, #c4b088) left top / 18px 3px no-repeat,
-      linear-gradient(#c4b088, #c4b088) left top / 3px 18px no-repeat,
-      linear-gradient(#c4b088, #c4b088) right top / 18px 3px no-repeat,
-      linear-gradient(#c4b088, #c4b088) right top / 3px 18px no-repeat,
-      linear-gradient(#c4b088, #c4b088) left bottom / 18px 3px no-repeat,
-      linear-gradient(#c4b088, #c4b088) left bottom / 3px 18px no-repeat,
-      linear-gradient(#c4b088, #c4b088) right bottom / 18px 3px no-repeat,
-      linear-gradient(#c4b088, #c4b088) right bottom / 3px 18px no-repeat;
-    opacity: 0.55;
   }
   .pixel-rivets {
     position: absolute;
