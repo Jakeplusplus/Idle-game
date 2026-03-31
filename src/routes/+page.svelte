@@ -337,9 +337,7 @@
       <div>
         <h1>Generation {game.generation} Dragon</h1>
         <p class="header-subtitle">
-          Roosting in the {MOUNTAIN_LAYERS[game.mountain.currentLayerIndex]
-            .name}
-          at ({game.mountain.coordinates.x}, {game.mountain.coordinates.y})
+          Roosting on the {game.mountain.name}
         </p>
       </div>
       <div class="status-grid" aria-label="Dragon stats">
