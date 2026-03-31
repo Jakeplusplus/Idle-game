@@ -26,15 +26,8 @@
 
   import MountainStrataMap from "$lib/components/MountainStrataMap.svelte";
 
-  type TabId =
-    | "brood"
-    | "depths"
-    | "construction"
-    | "trade"
-    | "forge"
-    | "workshop"
-    | "events"
-    | "bloodline";
+  type TabId = "brood" | "depths" | "buildings" | "trade" | "events";
+  type BuildingTabId = "construction" | "forge" | "workshop" | "bloodline";
 
   onMount(() => {
     startGameLoop();
@@ -42,6 +35,7 @@
 
   let showOptions = $state(false);
   let activeTab = $state<TabId>("brood");
+  let activeBuildingTab = $state<BuildingTabId>("construction");
   let gearButton: HTMLButtonElement | undefined = $state();
   let optionsContainer: HTMLDivElement | undefined = $state();
   let importSaveButton: HTMLButtonElement | undefined = $state();
@@ -134,44 +128,43 @@
   function getTabLabel(tabId: TabId) {
     if (tabId === "brood") return "Brood";
     if (tabId === "depths") return "Depths";
-    if (tabId === "construction") return "Construction";
+    if (tabId === "buildings") return "Buildings";
     if (tabId === "trade") return "Trade";
+    return "Events";
+  }
+
+  function isTabUnlocked(_tabId: TabId) {
+    return true;
+  }
+
+  const lairTabs: TabId[] = ["brood", "depths", "buildings", "trade", "events"];
+
+  function getBuildingTabLabel(tabId: BuildingTabId) {
+    if (tabId === "construction") return "Construction";
     if (tabId === "forge") return "Forge";
     if (tabId === "workshop") return "Workshop";
-    if (tabId === "events") return "Events";
     return "Bloodline";
   }
 
-  function isTabUnlocked(tabId: TabId) {
-    if (
-      tabId === "brood" ||
-      tabId === "depths" ||
-      tabId === "construction" ||
-      tabId === "trade" ||
-      tabId === "events"
-    )
-      return true;
+  function isBuildingTabUnlocked(tabId: BuildingTabId) {
+    if (tabId === "construction") return true;
     if (tabId === "forge") return Boolean(game.buildings.blacksmith);
     if (tabId === "workshop") return Boolean(game.buildings.invention_lab);
     if (tabId === "bloodline") return Boolean(game.buildings.hatchery);
     return false;
   }
 
-  function getTabStatus(tabId: TabId) {
+  function getBuildingTabStatus(tabId: BuildingTabId) {
     if (tabId === "forge") return "Build Blacksmith";
     if (tabId === "workshop") return "Build Invention Lab";
     if (tabId === "bloodline") return "Build Hatchery";
     return "Ready";
   }
 
-  const lairTabs: TabId[] = [
-    "brood",
-    "depths",
+  const buildingTabs: BuildingTabId[] = [
     "construction",
-    "trade",
     "forge",
     "workshop",
-    "events",
     "bloodline",
   ];
 
@@ -210,8 +203,8 @@
   });
 
   $effect(() => {
-    if (!isTabUnlocked(activeTab)) {
-      activeTab = "construction";
+    if (!isBuildingTabUnlocked(activeBuildingTab)) {
+      activeBuildingTab = "construction";
     }
   });
 
@@ -267,78 +260,79 @@
 
 <svelte:window onclick={handleClickOutside} onkeydown={handleGlobalKeydown} />
 
-<div bind:this={optionsContainer} class="options-dock">
-  <button
-    bind:this={gearButton}
-    class="gear-btn"
-    type="button"
-    aria-label={showOptions ? "Close options menu" : "Open options menu"}
-    aria-haspopup="menu"
-    aria-expanded={showOptions}
-    aria-controls={optionsMenuId}
-    onclick={toggleOptionsMenu}
-  >
-    <svg
-      viewBox="0 0 16 16"
-      width="32"
-      height="32"
-      fill="currentColor"
-      aria-hidden="true"
-      style="image-rendering: pixelated; shape-rendering: crispEdges;"
+<header class="app-header">
+  <span class="app-title">Hoard</span>
+  <div class="header-options" bind:this={optionsContainer}>
+    <button
+      bind:this={gearButton}
+      class="gear-btn"
+      type="button"
+      aria-label={showOptions ? "Close options menu" : "Open options menu"}
+      aria-haspopup="menu"
+      aria-expanded={showOptions}
+      aria-controls={optionsMenuId}
+      onclick={toggleOptionsMenu}
     >
-      <path
-        d="M6 0h4v2h4v4h2v4h-2v4h-4v2H6v-2H2v-4H0V6h2V2h4V0zM6 6h4v4H6z"
-        fill-rule="evenodd"
-      />
-    </svg>
-  </button>
+      <svg
+        viewBox="0 0 16 16"
+        width="24"
+        height="24"
+        fill="currentColor"
+        aria-hidden="true"
+        style="image-rendering: pixelated; shape-rendering: crispEdges;"
+      >
+        <path
+          d="M6 0h4v2h4v4h2v4h-2v4h-4v2H6v-2H2v-4H0V6h2V2h4V0zM6 6h4v4H6z"
+          fill-rule="evenodd"
+        />
+      </svg>
+    </button>
 
-  {#if showOptions}
-    <div class="options-dropdown panel" id={optionsMenuId} role="menu">
-      <h2 class="options-title">Options</h2>
-      <button type="button" role="menuitem" onclick={exportSave}
-        >Export Save</button
-      >
-      <button
-        bind:this={importSaveButton}
-        type="button"
-        role="menuitem"
-        onclick={() => importInput?.click()}
-      >
-        Import Save
-      </button>
-      <input
-        bind:this={importInput}
-        id="save-upload"
-        type="file"
-        accept=".json"
-        onchange={handleImport}
-        style="display: none;"
-      />
-      <button
-        class="danger-btn"
-        type="button"
-        role="menuitem"
-        onclick={confirmReset}
-      >
-        Hard Reset
-      </button>
-    </div>
-  {/if}
-</div>
+    {#if showOptions}
+      <div class="options-dropdown panel" id={optionsMenuId} role="menu">
+        <h2 class="options-title">Options</h2>
+        <button type="button" role="menuitem" onclick={exportSave}
+          >Export Save</button
+        >
+        <button
+          bind:this={importSaveButton}
+          type="button"
+          role="menuitem"
+          onclick={() => importInput?.click()}
+        >
+          Import Save
+        </button>
+        <input
+          bind:this={importInput}
+          id="save-upload"
+          type="file"
+          accept=".json"
+          onchange={handleImport}
+          style="display: none;"
+        />
+        <button
+          class="danger-btn"
+          type="button"
+          role="menuitem"
+          onclick={confirmReset}
+        >
+          Hard Reset
+        </button>
+      </div>
+    {/if}
+  </div>
+</header>
 
-<div class="container">
+<div class="app-body">
   <div class="glow glow-left" aria-hidden="true"></div>
   <div class="glow glow-right" aria-hidden="true"></div>
-  <header class="panel header forest-panel">
-    <div class="panel-kicker">Hoard</div>
-    <div class="panel-brackets" aria-hidden="true"></div>
-    <div class="header-title-row">
-      <div>
+
+  <aside class="left-rail">
+    <div class="panel dragon-card forest-panel">
+      <div class="panel-brackets" aria-hidden="true"></div>
+      <div class="dragon-card-header">
         <h1>Generation {game.generation} Dragon</h1>
-        <p class="header-subtitle">
-          Roosting on the {game.mountain.name}
-        </p>
+        <p class="header-subtitle">Roosting on the {game.mountain.name}</p>
       </div>
       <div class="status-grid" aria-label="Dragon stats">
         <div class="status-chip">
@@ -359,9 +353,7 @@
         </div>
       </div>
     </div>
-  </header>
 
-  <section class="hero-grid">
     <div class="panel hoard-display forest-panel">
       <div class="panel-kicker">{game.mountain.name}</div>
       <div class="panel-brackets" aria-hidden="true"></div>
@@ -453,16 +445,14 @@
         </button>
       </div>
     </div>
-  </section>
+  </aside>
 
-  <section class="panel forest-panel tabbed-wing">
-    <div class="panel-kicker">Mountain Wings</div>
-    <div class="panel-brackets" aria-hidden="true"></div>
-    <div class="tab-strip" role="tablist" aria-label="Lair wings">
+  <div class="right-panel">
+    <div class="tab-bar" role="tablist" aria-label="Lair wings">
       {#each lairTabs as tabId}
         <button
           role="tab"
-          class="tab-chip"
+          class="tab-btn"
           class:active-tab={activeTab === tabId}
           class:locked-tab={!isTabUnlocked(tabId)}
           aria-selected={activeTab === tabId}
@@ -476,6 +466,10 @@
         </button>
       {/each}
     </div>
+
+    <div class="panel forest-panel tab-content-panel">
+      <div class="panel-kicker">Mountain Wings</div>
+      <div class="panel-brackets" aria-hidden="true"></div>
 
     {#if activeTab === "brood"}
       <div class="tab-panel">
@@ -514,48 +508,157 @@
       </div>
     {/if}
 
-    {#if activeTab === "construction"}
-      <div class="tab-panel">
-        <h3>Construction</h3>
-        <p class="section-lead">
-          Raise lodges, tunnels, and workshops to expand the roost. Each major
-          structure unlocks a new control wing.
-        </p>
-        <div class="purchase-list building-list">
-          {#each BUILDINGS as building (building.id)}
-            <div class="purchase-item themed-card building-card">
-              <div class="info" style="flex-grow: 1;">
-                <strong>{building.name}</strong>
-                {#if game.buildings[building.id]}
-                  <span class="active-badge">(Constructed)</span>
-                {:else if building.id === "blacksmith"}
-                  <span class="active-badge unlock-badge">Unlocks Forge</span>
-                {:else if building.id === "invention_lab"}
-                  <span class="active-badge unlock-badge">Unlocks Workshop</span
-                  >
-                {:else if building.id === "hatchery"}
-                  <span class="active-badge unlock-badge"
-                    >Unlocks Bloodline</span
-                  >
-                {/if}
-                <div class="building-description-row">
-                  <p>{building.description}</p>
-                  {#if !game.buildings[building.id]}
-                    <div class="building-action-row">
-                      <button
-                        onclick={() => buyBuilding(building.id)}
-                        disabled={game.gold < building.goldCost}
-                      >
-                        Build - {building.goldCost} Gold
-                      </button>
-                    </div>
+    {#if activeTab === "buildings"}
+      <div class="sub-tab-bar" role="tablist" aria-label="Buildings wings">
+        {#each buildingTabs as tabId}
+          <button
+            role="tab"
+            class="sub-tab-btn"
+            class:active-sub-tab={activeBuildingTab === tabId}
+            class:locked-tab={!isBuildingTabUnlocked(tabId)}
+            aria-selected={activeBuildingTab === tabId}
+            disabled={!isBuildingTabUnlocked(tabId)}
+            onclick={() => (activeBuildingTab = tabId)}
+          >
+            {getBuildingTabLabel(tabId)}
+            {#if !isBuildingTabUnlocked(tabId)}
+              <small>{getBuildingTabStatus(tabId)}</small>
+            {/if}
+          </button>
+        {/each}
+      </div>
+
+      {#if activeBuildingTab === "construction"}
+        <div class="tab-panel">
+          <h3>Construction</h3>
+          <p class="section-lead">
+            Raise lodges, tunnels, and workshops to expand the roost. Each major
+            structure unlocks a new wing below.
+          </p>
+          <div class="purchase-list building-list">
+            {#each BUILDINGS as building (building.id)}
+              <div class="purchase-item themed-card building-card">
+                <div class="info" style="flex-grow: 1;">
+                  <strong>{building.name}</strong>
+                  {#if game.buildings[building.id]}
+                    <span class="active-badge">(Constructed)</span>
+                  {:else if building.id === "blacksmith"}
+                    <span class="active-badge unlock-badge">Unlocks Forge</span>
+                  {:else if building.id === "invention_lab"}
+                    <span class="active-badge unlock-badge"
+                      >Unlocks Workshop</span
+                    >
+                  {:else if building.id === "hatchery"}
+                    <span class="active-badge unlock-badge"
+                      >Unlocks Bloodline</span
+                    >
                   {/if}
+                  <div class="building-description-row">
+                    <p>{building.description}</p>
+                    {#if !game.buildings[building.id]}
+                      <div class="building-action-row">
+                        <button
+                          onclick={() => buyBuilding(building.id)}
+                          disabled={game.gold < building.goldCost}
+                        >
+                          Build - {building.goldCost} Gold
+                        </button>
+                      </div>
+                    {/if}
+                  </div>
                 </div>
               </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
-      </div>
+      {/if}
+
+      {#if activeBuildingTab === "forge"}
+        <div class="tab-panel">
+          <h3>Forge</h3>
+          <p class="section-lead">
+            Smithing breakthroughs reinforce your mountain hold and unlock deeper
+            excavation routes.
+          </p>
+          <div class="purchase-list">
+            {#each UPGRADES.filter((u) => u.buildingId === "blacksmith") as upgrade (upgrade.id)}
+              <div class="upgrade-item themed-card wing-upgrade">
+                <div class="upgrade-info">
+                  <strong>{upgrade.name}</strong>
+                  {#if game.upgrades[upgrade.id]}
+                    <span class="active-badge">(Purchased)</span>
+                  {/if}
+                  <p style="font-size: 1rem; margin: 3px 0;">
+                    {upgrade.description}
+                  </p>
+                </div>
+                {#if !game.upgrades[upgrade.id]}
+                  <button
+                    onclick={() => buyUpgrade(upgrade.id)}
+                    disabled={game.ore < upgrade.oreCost}
+                  >
+                    Buy - {upgrade.oreCost} Ore
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if activeBuildingTab === "workshop"}
+        <div class="tab-panel">
+          <h3>Workshop</h3>
+          <p class="section-lead">
+            Engineering upgrades turn your labor force into a true highland
+            excavation crew.
+          </p>
+          <div class="purchase-list">
+            {#each UPGRADES.filter((u) => u.buildingId === "invention_lab") as upgrade (upgrade.id)}
+              <div class="upgrade-item themed-card wing-upgrade">
+                <div class="upgrade-info">
+                  <strong>{upgrade.name}</strong>
+                  {#if game.upgrades[upgrade.id]}
+                    <span class="active-badge">(Purchased)</span>
+                  {/if}
+                  <p style="font-size: 1rem; margin: 3px 0;">
+                    {upgrade.description}
+                  </p>
+                </div>
+                {#if !game.upgrades[upgrade.id]}
+                  <button
+                    onclick={() => buyUpgrade(upgrade.id)}
+                    disabled={game.ore < upgrade.oreCost}
+                  >
+                    Buy - {upgrade.oreCost} Ore
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if activeBuildingTab === "bloodline"}
+        <div class="tab-panel">
+          <h3>Bloodline Chamber</h3>
+          <p>
+            Accumulate at least 10,000 gold to attract a mate and lay a
+            hatchling.
+          </p>
+          <p class="section-lead">
+            The Hatchery prepares future generations. Larger mountain vaults
+            produce stronger inherited traits.
+          </p>
+          <button
+            onclick={attractMate}
+            disabled={game.gold < 10000}
+            class={game.gold >= 10000 ? "glow" : ""}
+          >
+            Attract Mate (Prestige)
+          </button>
+        </div>
+      {/if}
     {/if}
 
     {#if activeTab === "trade"}
@@ -615,72 +718,6 @@
       </div>
     {/if}
 
-    {#if activeTab === "forge"}
-      <div class="tab-panel">
-        <h3>Forge</h3>
-        <p class="section-lead">
-          Smithing breakthroughs reinforce your mountain hold and unlock deeper
-          excavation routes.
-        </p>
-        <div class="purchase-list">
-          {#each UPGRADES.filter((u) => u.buildingId === "blacksmith") as upgrade (upgrade.id)}
-            <div class="upgrade-item themed-card wing-upgrade">
-              <div class="upgrade-info">
-                <strong>{upgrade.name}</strong>
-                {#if game.upgrades[upgrade.id]}
-                  <span class="active-badge">(Purchased)</span>
-                {/if}
-                <p style="font-size: 1rem; margin: 3px 0;">
-                  {upgrade.description}
-                </p>
-              </div>
-              {#if !game.upgrades[upgrade.id]}
-                <button
-                  onclick={() => buyUpgrade(upgrade.id)}
-                  disabled={game.ore < upgrade.oreCost}
-                >
-                  Buy - {upgrade.oreCost} Ore
-                </button>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
-    {#if activeTab === "workshop"}
-      <div class="tab-panel">
-        <h3>Workshop</h3>
-        <p class="section-lead">
-          Engineering upgrades turn your labor force into a true highland
-          excavation crew.
-        </p>
-        <div class="purchase-list">
-          {#each UPGRADES.filter((u) => u.buildingId === "invention_lab") as upgrade (upgrade.id)}
-            <div class="upgrade-item themed-card wing-upgrade">
-              <div class="upgrade-info">
-                <strong>{upgrade.name}</strong>
-                {#if game.upgrades[upgrade.id]}
-                  <span class="active-badge">(Purchased)</span>
-                {/if}
-                <p style="font-size: 1rem; margin: 3px 0;">
-                  {upgrade.description}
-                </p>
-              </div>
-              {#if !game.upgrades[upgrade.id]}
-                <button
-                  onclick={() => buyUpgrade(upgrade.id)}
-                  disabled={game.ore < upgrade.oreCost}
-                >
-                  Buy - {upgrade.oreCost} Ore
-                </button>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
     {#if activeTab === "events"}
       <div class="tab-panel">
         <h3>Visitors, Raids, and Rumors</h3>
@@ -698,27 +735,8 @@
         </div>
       </div>
     {/if}
-
-    {#if activeTab === "bloodline"}
-      <div class="tab-panel">
-        <h3>Bloodline Chamber</h3>
-        <p>
-          Accumulate at least 10,000 gold to attract a mate and lay a hatchling.
-        </p>
-        <p class="section-lead">
-          The Hatchery prepares future generations. Larger mountain vaults
-          produce stronger inherited traits.
-        </p>
-        <button
-          onclick={attractMate}
-          disabled={game.gold < 10000}
-          class={game.gold >= 10000 ? "glow" : ""}
-        >
-          Attract Mate (Prestige)
-        </button>
-      </div>
-    {/if}
-  </section>
+    </div>
+  </div>
 </div>
 
 <dialog
@@ -762,16 +780,100 @@
 </dialog>
 
 <style>
-  .container {
+  /* ── App chrome ─────────────────────────────────────────────────────── */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(
+      180deg,
+      rgba(24, 28, 25, 0.99),
+      rgba(18, 22, 19, 0.99)
+    );
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+  }
+  .app-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-warm);
+    line-height: 1;
+  }
+  .header-options {
     position: relative;
-    overflow-x: clip;
-    overflow-y: visible;
-    max-width: 91.25rem;
-    margin: 0 auto;
-    padding: 2rem 1.25rem 2.5rem;
+    isolation: isolate;
+  }
+  .gear-btn {
+    background: linear-gradient(
+      180deg,
+      rgba(93, 76, 57, 0.96),
+      rgba(42, 47, 41, 0.96)
+    );
+    border: 2px solid var(--border-warm);
+    box-shadow: 0.25rem 0.25rem 0px var(--shadow-color);
+    padding: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.15s,
+      background 0.15s;
+  }
+  .gear-btn:hover,
+  .gear-btn:focus-visible {
+    background: linear-gradient(
+      180deg,
+      rgba(112, 94, 71, 0.98),
+      rgba(64, 82, 72, 0.98)
+    );
+  }
+  .gear-btn:active {
+    box-shadow: none;
+    transform: translate(0.25rem, 0.25rem);
+  }
+  .options-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: min(17.5rem, calc(100vw - 2rem));
     display: flex;
     flex-direction: column;
+    gap: 0.625rem;
+    background: linear-gradient(
+      180deg,
+      rgba(46, 53, 48, 0.99),
+      rgba(28, 33, 29, 0.99)
+    );
+    border: 2px solid var(--border-color);
+    padding: 0.9375rem;
+    box-shadow:
+      0 0 0 1px rgba(var(--wood-rgb), 0.18) inset,
+      0.25rem 0.25rem 0px #000;
+    z-index: 10;
+  }
+  .options-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+
+  /* ── Page body grid ─────────────────────────────────────────────────── */
+  .app-body {
+    position: relative;
+    overflow-x: clip;
+    max-width: 91.25rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2.5rem;
+    display: grid;
+    grid-template-columns: 22rem minmax(0, 1fr);
     gap: 1.5rem;
+    align-items: start;
   }
   .glow {
     position: fixed;
@@ -798,87 +900,39 @@
     top: 21.25rem;
     right: -10rem;
   }
-  .container > :not(.glow) {
-    position: relative;
-  }
-  .forest-panel {
-    position: relative;
-    background: linear-gradient(
-        180deg,
-        rgba(55, 62, 56, 0.94),
-        rgba(34, 39, 35, 0.97)
-      ),
-      linear-gradient(
-        90deg,
-        rgba(var(--wood-rgb), 0.08),
-        transparent 35%,
-        rgba(var(--stream-rgb), 0.07)
-      );
-    border-color: var(--border-color);
-    box-shadow:
-      0 0 0 2px rgba(20, 24, 21, 0.75) inset,
-      0.5rem 0.5rem 0px var(--shadow-color);
-    overflow: hidden;
-  }
-  .panel-brackets {
-    position: absolute;
-    inset: 0.625rem;
-    pointer-events: none;
-  }
-  .pixel-rivets {
-    position: absolute;
-    inset-inline: 1.125rem;
-    top: 1rem;
-    height: 0.5rem;
-    pointer-events: none;
-    background: radial-gradient(
-        square at left center,
-        #c7b696 0 35%,
-        transparent 40%
-      )
-      0 0 / 48px 8px repeat-x;
-    opacity: 0.45;
-  }
-  .panel-kicker {
-    position: relative;
-    margin-bottom: 0.625rem;
-    color: var(--text-warm);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .header {
-    padding: 1.5rem;
-  }
-  .header-title-row {
-    position: relative;
+
+  /* ── Left rail ──────────────────────────────────────────────────────── */
+  .left-rail {
     display: flex;
-    justify-content: space-between;
-    gap: 1.5rem;
-    align-items: end;
+    flex-direction: column;
+    gap: 1.25rem;
   }
-  .header h1,
-  .hoard-display h2,
-  .section-panel h3 {
+
+  /* Dragon card */
+  .dragon-card {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .dragon-card-header h1 {
     font-family: var(--font-display);
-    font-size: clamp(1rem, 2vw, 1.45rem);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
     line-height: 1.4;
+    margin: 0;
   }
-  .header-subtitle,
-  .section-lead {
-    margin: 0.625rem 0 0;
+  .header-subtitle {
+    margin: 0.375rem 0 0;
     color: var(--text-warm);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
   .status-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(6.875rem, 1fr));
-    gap: 0.625rem;
-    min-width: min(100%, 17.5rem);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
   }
   .status-chip {
-    padding: 0.75rem 0.875rem;
+    padding: 0.625rem 0.75rem;
     background: linear-gradient(
       180deg,
       rgba(29, 35, 31, 0.84),
@@ -888,31 +942,33 @@
     box-shadow: 0 0 0 1px rgba(var(--pine-rgb), 0.14) inset;
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
   .status-label,
   .resource-label {
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   .status-chip strong,
   .resource-card strong,
   .vault-usage strong,
   .income-pill strong {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: normal;
   }
-  .hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-  }
+
+  /* Hoard display */
   .hoard-display {
     display: flex;
     flex-direction: column;
     gap: 1.125rem;
-    padding: 1.75rem;
+    padding: 1.5rem;
+  }
+  .hoard-display h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    line-height: 1.4;
   }
   .hoard-heading-row {
     display: flex;
@@ -925,8 +981,8 @@
     text-shadow: 0 0 0.625rem rgba(var(--stream-rgb), 0.28);
   }
   .vault-usage {
-    min-width: 8.75rem;
-    padding: 0.75rem 0.875rem;
+    min-width: 7.5rem;
+    padding: 0.625rem 0.75rem;
     text-align: right;
     background: rgba(27, 32, 29, 0.78);
     border: 2px solid var(--border-warm);
@@ -935,10 +991,10 @@
     position: relative;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 0.625rem;
   }
   .resource-card {
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 0.875rem;
     border: 2px solid var(--border-warm);
     background: linear-gradient(
       180deg,
@@ -979,7 +1035,7 @@
   .capacity-bar {
     position: relative;
     display: flex;
-    height: 1.75rem;
+    height: 1.5rem;
     background: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.5),
@@ -1028,21 +1084,234 @@
     position: relative;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.625rem;
+    gap: 0.5rem;
   }
   .income-pill {
-    padding: 0.75rem 0.875rem;
+    padding: 0.625rem 0.75rem;
     background: rgba(28, 33, 30, 0.84);
     border: 2px solid var(--border-warm);
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
   .action-deck {
     position: relative;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* ── Right panel with traditional tabs ─────────────────────────────── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding-left: 0.25rem;
+    position: relative;
+    z-index: 1;
+  }
+  .tab-btn {
+    position: relative;
+    padding: 0.5rem 1rem;
+    margin-right: 3px;
+    margin-bottom: -2px;
+    min-height: auto;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    background: linear-gradient(
+      180deg,
+      rgba(44, 38, 30, 0.97),
+      rgba(28, 32, 29, 0.97)
+    );
+    border: 2px solid var(--border-warm);
+    border-bottom-color: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .tab-btn span {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+  .tab-btn small {
+    font-family: var(--font-pixel);
+    font-size: 0.85rem;
+    color: #a8c0ab;
+    line-height: 1.1;
+  }
+  .tab-btn:hover:not(:disabled) {
+    background: linear-gradient(
+      180deg,
+      rgba(62, 54, 42, 0.98),
+      rgba(38, 44, 39, 0.98)
+    );
+  }
+  .tab-btn.active-tab {
+    background: linear-gradient(
+      180deg,
+      rgba(55, 62, 56, 0.97),
+      rgba(38, 44, 39, 0.97)
+    );
+    border-color: #c0b184;
+    border-bottom-color: rgba(38, 44, 39, 0.97);
+    z-index: 2;
+    color: #e8dfc0;
+  }
+  .tab-btn.locked-tab {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .tab-content-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 0;
+    border-top: 2px solid var(--border-color);
+  }
+  .tab-panel {
+    display: flex;
+    flex-direction: column;
     gap: 0.875rem;
+  }
+
+  /* ── Building sub-tabs ──────────────────────────────────────────────── */
+  .sub-tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-warm);
+    margin-bottom: 0.25rem;
+  }
+  .sub-tab-btn {
+    padding: 0.375rem 0.875rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    background: linear-gradient(
+      180deg,
+      rgba(44, 38, 30, 0.9),
+      rgba(28, 32, 29, 0.9)
+    );
+    border: 2px solid var(--border-warm);
+    box-shadow: 0.2rem 0.2rem 0 var(--shadow-color);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .sub-tab-btn small {
+    font-family: var(--font-pixel);
+    font-size: 0.8rem;
+    color: #a8c0ab;
+  }
+  .sub-tab-btn:hover:not(:disabled) {
+    background: linear-gradient(
+      180deg,
+      rgba(62, 54, 42, 0.95),
+      rgba(38, 44, 39, 0.95)
+    );
+  }
+  .sub-tab-btn.active-sub-tab {
+    background: linear-gradient(
+      180deg,
+      rgba(93, 115, 89, 0.98),
+      rgba(65, 82, 64, 0.98)
+    );
+    border-color: #c0b184;
+    color: #e8dfc0;
+    box-shadow: none;
+  }
+  .sub-tab-btn:disabled {
+    background: linear-gradient(
+      180deg,
+      rgba(28, 30, 28, 0.85),
+      rgba(22, 24, 22, 0.9)
+    );
+    border-color: #3a3f3b;
+    color: #556058;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .sub-tab-btn:disabled small {
+    color: #4a5a4d;
+  }
+  .section-panel :global(.mountain-map) {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+  .section-panel :global(h3) {
+    display: none;
+  }
+
+  /* ── Shared panel decorations ───────────────────────────────────────── */
+  .forest-panel {
+    position: relative;
+    background: linear-gradient(
+        180deg,
+        rgba(55, 62, 56, 0.94),
+        rgba(34, 39, 35, 0.97)
+      ),
+      linear-gradient(
+        90deg,
+        rgba(var(--wood-rgb), 0.08),
+        transparent 35%,
+        rgba(var(--stream-rgb), 0.07)
+      );
+    border-color: var(--border-color);
+    box-shadow:
+      0 0 0 2px rgba(20, 24, 21, 0.75) inset,
+      0.5rem 0.5rem 0px var(--shadow-color);
+    overflow: hidden;
+  }
+  .panel-brackets {
+    position: absolute;
+    inset: 0.625rem;
+    pointer-events: none;
+  }
+  .pixel-rivets {
+    position: absolute;
+    inset-inline: 1.125rem;
+    top: 1rem;
+    height: 0.5rem;
+    pointer-events: none;
+    background: radial-gradient(
+        square at left center,
+        #c7b696 0 35%,
+        transparent 40%
+      )
+      0 0 / 48px 8px repeat-x;
+    opacity: 0.45;
+  }
+  .panel-kicker {
+    position: relative;
+    margin-bottom: 0.625rem;
+    color: var(--text-warm);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* ── Tab content internals ──────────────────────────────────────────── */
+  .section-lead {
+    margin: 0.625rem 0 0;
+    color: var(--text-warm);
+    font-size: 1.05rem;
   }
   .trade-market-grid {
     position: relative;
@@ -1073,128 +1342,6 @@
   }
   .trade-price-tag {
     color: #cfe0df;
-    font-size: 1rem;
-  }
-  .tabbed-wing {
-    display: flex;
-    flex-direction: column;
-    gap: 1.125rem;
-    padding: 1.5rem;
-  }
-  .tab-strip {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.625rem;
-  }
-  .tab-chip {
-    min-height: 4.625rem;
-    padding: 0.75rem 0.875rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.5rem;
-    background: linear-gradient(
-      180deg,
-      rgba(62, 51, 40, 0.95),
-      rgba(33, 38, 34, 0.96)
-    );
-    border-color: var(--border-warm);
-    box-shadow: 0.25rem 0.25rem 0 var(--shadow-color);
-  }
-  .tab-chip span {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  .tab-chip small {
-    font-family: var(--font-pixel);
-    font-size: 1rem;
-    color: #a8c0ab;
-    line-height: 1.1;
-  }
-  .active-tab {
-    background: linear-gradient(
-      180deg,
-      rgba(93, 115, 89, 0.98),
-      rgba(65, 82, 64, 0.98)
-    );
-    border-color: #c0b184;
-  }
-  .locked-tab {
-    opacity: 0.55;
-  }
-  .tab-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-  }
-  .section-panel :global(.mountain-map) {
-    padding: 0;
-    border: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-  .section-panel :global(h3) {
-    display: none;
-  }
-  .options-dock {
-    position: fixed;
-    top: 1.25rem;
-    right: 1.25rem;
-    z-index: 10;
-    isolation: isolate;
-  }
-  .gear-btn {
-    font-size: 2em;
-    background: linear-gradient(
-      180deg,
-      rgba(93, 76, 57, 0.96),
-      rgba(42, 47, 41, 0.96)
-    );
-    border: none;
-    box-shadow: 0.375rem 0.375rem 0px var(--shadow-color);
-    padding: 0.375rem;
-    cursor: pointer;
-    transition:
-      transform 0.2s,
-      color 0.2s,
-      background-color 0.2s;
-  }
-  .gear-btn:hover,
-  .gear-btn:focus-visible {
-    background: linear-gradient(
-      180deg,
-      rgba(112, 94, 71, 0.98),
-      rgba(64, 82, 72, 0.98)
-    );
-  }
-  .gear-btn:active {
-    box-shadow: 0px 0px 0px #000;
-  }
-  .options-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 0.625rem;
-    width: min(17.5rem, calc(100vw - 2rem));
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-    background: linear-gradient(
-      180deg,
-      rgba(46, 53, 48, 0.98),
-      rgba(28, 33, 29, 0.99)
-    );
-    border: 2px solid var(--border-color);
-    padding: 0.9375rem;
-    box-shadow:
-      0 0 0 1px rgba(var(--wood-rgb), 0.18) inset,
-      0.25rem 0.25rem 0px #000;
-    z-index: 1;
-  }
-  .options-title {
-    font-family: var(--font-display);
     font-size: 1rem;
   }
   .danger-btn {
@@ -1248,11 +1395,10 @@
     flex-direction: column;
     gap: 0.9375rem;
     margin-top: 0.625rem;
-    max-height: 25rem;
+    max-height: 30rem;
     overflow-y: auto;
     padding-right: 0.625rem;
   }
-  /* Custom scrollbar for pixel art feel */
   .purchase-list::-webkit-scrollbar {
     width: 0.75rem;
   }
@@ -1357,13 +1503,11 @@
       box-shadow: 0.25rem 0.25rem 0px #000;
     }
   }
-
   .active-badge {
     color: var(--text-accent);
     font-size: 1rem;
     margin-left: 0.3125rem;
   }
-
   .upgrade-item {
     display: flex;
     flex-wrap: wrap;
@@ -1382,7 +1526,6 @@
     flex: 1 1 12.5rem;
     max-width: 100%;
   }
-
   dialog {
     min-width: 18.75rem;
     text-align: center;
@@ -1392,12 +1535,12 @@
     background: rgba(10, 14, 12, 0.78);
   }
 
+  /* ── Responsive ─────────────────────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .capped-warning,
     button.glow {
       animation: none;
     }
-
     .capacity-fill,
     .gear-btn,
     button {
@@ -1405,22 +1548,23 @@
     }
   }
 
-  @media (max-width: 61.25rem) {
-    .hero-grid,
+  @media (max-width: 68rem) {
+    .app-body {
+      grid-template-columns: 1fr;
+    }
+    .tab-bar {
+      flex-wrap: wrap;
+    }
     .trade-market-grid,
     .resource-readout-grid,
     .income-rack,
-    .action-deck,
-    .tab-strip {
+    .action-deck {
       grid-template-columns: 1fr;
     }
-
-    .header-title-row,
     .hoard-heading-row {
       flex-direction: column;
       align-items: stretch;
     }
-
     .vault-usage {
       text-align: left;
     }
