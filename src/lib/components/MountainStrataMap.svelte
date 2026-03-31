@@ -93,10 +93,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 1px rgba(195, 164, 123, 0.08) inset;
+    box-shadow: 0 0 0 1px rgba(var(--wood-rgb), 0.08) inset;
   }
   .stratum.locked {
-    background: #171b18;
+    background: var(--bg-color);
     border-color: #384038;
   }
   .stratum-fill {
@@ -106,8 +106,8 @@
     height: 100%;
     background: linear-gradient(
       90deg,
-      rgba(130, 182, 200, 0.18),
-      rgba(151, 186, 142, 0.32),
+      rgba(var(--stream-rgb), 0.18),
+      rgba(var(--pine-rgb), 0.32),
       rgba(79, 113, 86, 0.42)
     );
     opacity: 0.9;
@@ -124,10 +124,10 @@
   }
   .stratum-stats {
     font-size: 1rem;
-    color: #d5ddd2;
+    color: var(--text-main);
   }
   .obscured {
-    color: #667063;
+    color: var(--text-muted);
     margin: 0 auto;
     letter-spacing: 2px;
   }

@@ -19,6 +19,21 @@
   --pine-light: #97ba8e;
   --stream-dark: #38586a;
   --stream-light: #82b6c8;
+  /* Extended text palette */
+  --text-label: #c8ba9a;
+  --text-warm: #d7ccaa;
+  --text-cream: #e8dec3;
+  --text-bright: #f4f6ef;
+  --text-muted: #667063;
+  /* Secondary borders */
+  --border-warm: #6b5a46;
+  --border-gold: #b89457;
+  --border-ore: #7ca0ad;
+  --border-capacity: #6f8a66;
+  /* RGB channels for rgba() compositing */
+  --wood-rgb: 195, 164, 123;
+  --stream-rgb: 130, 182, 200;
+  --pine-rgb: 151, 186, 142;
   --font-pixel: "VT323", monospace;
   --font-display: "Press Start 2P", monospace;
 }
