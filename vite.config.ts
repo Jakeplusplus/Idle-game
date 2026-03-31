@@ -8,6 +8,11 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
+  server: {
+    fs: {
+      allow: ["../../.."],
+    },
+  },
   plugins: [sveltekit(), devtoolsJson()],
   test: {
     expect: { requireAssertions: true },
