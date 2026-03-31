@@ -131,6 +131,14 @@ export function clickGold() {
 
 export function clickBurrow() {
   game.maxCapacity += game.stats.clickPower;
+  const oreGain = game.stats.clickPower * 0.05;
+  const totalResources = game.gold + game.ore;
+  if (totalResources < game.maxCapacity) {
+    game.ore += oreGain;
+    if (game.gold + game.ore > game.maxCapacity) {
+      game.ore = game.maxCapacity - game.gold;
+    }
+  }
 }
 
 export function resetHoard() {
