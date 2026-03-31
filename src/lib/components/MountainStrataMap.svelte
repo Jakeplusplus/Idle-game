@@ -60,7 +60,7 @@
             <strong>{stratum.name}</strong>
             <span class="stratum-stats">
               Excavated: {Math.floor(stratum.excavated)} / {stratum.maxCapacity}
-              <span style="opacity:0.6; margin-left:10px;"
+              <span style="opacity:0.6; margin-left:0.625rem;"
                 >({stratum.startPoint}m - {stratum.endPoint}m)</span
               >
             </span>
@@ -77,12 +77,12 @@
   .strata-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    margin-top: 15px;
+    gap: 0.3125rem;
+    margin-top: 0.9375rem;
   }
   .stratum {
     position: relative;
-    height: 40px;
+    height: 2.5rem;
     background: linear-gradient(
       180deg,
       rgba(34, 44, 38, 0.9),
@@ -119,7 +119,7 @@
     display: flex;
     width: 100%;
     justify-content: space-between;
-    padding: 0 15px;
+    padding: 0 0.9375rem;
     align-items: center;
   }
   .stratum-stats {

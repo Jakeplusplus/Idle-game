@@ -737,13 +737,13 @@
   <h3 id={tradeDialogTitleId}>
     {tradeMode === "buy" ? "Buy Ore" : "Sell Ore"}
   </h3>
-  <p style="margin-bottom: 5px;">
+  <p style="margin-bottom: 0.3125rem;">
     {tradeMode === "buy"
       ? `(Cost: ${TRADING.ORE_BUY_PRICE} Gold per Ore)`
       : `(Gain: ${TRADING.ORE_SELL_PRICE} Gold per Ore)`}
   </p>
   <div
-    style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 20px;"
+    style="display: flex; gap: 0.625rem; align-items: center; justify-content: center; margin-bottom: 1.25rem;"
   >
     <label for="trade-amt">Amount:</label>
     <input
@@ -753,10 +753,10 @@
       bind:value={tradeAmount}
       min="1"
       step="1"
-      style="font-size: 1.2em; padding: 5px; width: 100px; text-align: center; background: rgba(28, 33, 29, 0.96); color: var(--text-main); border: 2px solid var(--border-color);"
+      style="font-size: 1.2em; padding: 0.3125rem; width: 6.25rem; text-align: center; background: rgba(28, 33, 29, 0.96); color: var(--text-main); border: 2px solid var(--border-color);"
     />
   </div>
-  <div style="display: flex; gap: 10px; justify-content: center;">
+  <div style="display: flex; gap: 0.625rem; justify-content: center;">
     <button
       onclick={confirmTrade}
       disabled={tradeMode === "buy"
@@ -774,21 +774,21 @@
     position: relative;
     overflow-x: clip;
     overflow-y: visible;
-    max-width: 1460px;
+    max-width: 91.25rem;
     margin: 0 auto;
-    padding: 32px 20px 40px;
+    padding: 2rem 1.25rem 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 1.5rem;
   }
   .glow {
     position: fixed;
     pointer-events: none;
     z-index: 0;
-    width: 420px;
-    height: 420px;
+    width: 26.25rem;
+    height: 26.25rem;
     border-radius: 50%;
-    filter: blur(40px);
+    filter: blur(2.5rem);
     opacity: 0.38;
     background: radial-gradient(
       circle,
@@ -799,12 +799,12 @@
     );
   }
   .glow-left {
-    top: 80px;
-    left: -120px;
+    top: 5rem;
+    left: -7.5rem;
   }
   .glow-right {
-    top: 340px;
-    right: -160px;
+    top: 21.25rem;
+    right: -10rem;
   }
   .container > :not(.glow) {
     position: relative;
@@ -826,19 +826,19 @@
     border-color: var(--border-color);
     box-shadow:
       0 0 0 2px rgba(20, 24, 21, 0.75) inset,
-      8px 8px 0px var(--shadow-color);
+      0.5rem 0.5rem 0px var(--shadow-color);
     overflow: hidden;
   }
   .panel-brackets {
     position: absolute;
-    inset: 10px;
+    inset: 0.625rem;
     pointer-events: none;
   }
   .pixel-rivets {
     position: absolute;
-    inset-inline: 18px;
-    top: 16px;
-    height: 8px;
+    inset-inline: 1.125rem;
+    top: 1rem;
+    height: 0.5rem;
     pointer-events: none;
     background: radial-gradient(
         square at left center,
@@ -851,7 +851,7 @@
   .panel-kicker {
     position: relative;
     z-index: 1;
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
     color: var(--text-warm);
     font-family: var(--font-display);
     font-size: 1rem;
@@ -859,14 +859,14 @@
     text-transform: uppercase;
   }
   .header {
-    padding: 24px;
+    padding: 1.5rem;
   }
   .header-title-row {
     position: relative;
     z-index: 1;
     display: flex;
     justify-content: space-between;
-    gap: 24px;
+    gap: 1.5rem;
     align-items: end;
   }
   .header h1,
@@ -878,18 +878,18 @@
   }
   .header-subtitle,
   .scanner-copy {
-    margin: 10px 0 0;
+    margin: 0.625rem 0 0;
     color: var(--text-warm);
     font-size: 1.15rem;
   }
   .status-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(110px, 1fr));
-    gap: 10px;
-    min-width: min(100%, 280px);
+    grid-template-columns: repeat(2, minmax(6.875rem, 1fr));
+    gap: 0.625rem;
+    min-width: min(100%, 17.5rem);
   }
   .status-chip {
-    padding: 12px 14px;
+    padding: 0.75rem 0.875rem;
     background: linear-gradient(
       180deg,
       rgba(29, 35, 31, 0.84),
@@ -899,7 +899,7 @@
     box-shadow: 0 0 0 1px rgba(var(--pine-rgb), 0.14) inset;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .status-label,
   .resource-label {
@@ -919,27 +919,27 @@
   .hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: 1.5rem;
   }
   .hoard-display {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 28px;
+    gap: 1.125rem;
+    padding: 1.75rem;
   }
   .hoard-heading-row {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    gap: 1rem;
     align-items: start;
   }
   .cap-signal {
     color: var(--text-warm);
-    text-shadow: 0 0 10px rgba(var(--stream-rgb), 0.28);
+    text-shadow: 0 0 0.625rem rgba(var(--stream-rgb), 0.28);
   }
   .vault-usage {
-    min-width: 140px;
-    padding: 12px 14px;
+    min-width: 8.75rem;
+    padding: 0.75rem 0.875rem;
     text-align: right;
     background: rgba(27, 32, 29, 0.78);
     border: 2px solid var(--border-warm);
@@ -949,10 +949,10 @@
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 0.75rem;
   }
   .resource-card {
-    padding: 14px 16px;
+    padding: 0.875rem 1rem;
     border: 2px solid var(--border-warm);
     background: linear-gradient(
       180deg,
@@ -973,16 +973,16 @@
   .capacity-shell {
     position: relative;
     z-index: 1;
-    padding: 8px;
+    padding: 0.5rem;
     border: 3px solid var(--border-warm);
     background: rgba(22, 26, 24, 0.9);
     box-shadow:
       0 0 0 2px rgba(var(--wood-rgb), 0.08) inset,
-      0 0 18px rgba(var(--stream-rgb), 0.08);
+      0 0 1.125rem rgba(var(--stream-rgb), 0.08);
   }
   .meter-markings {
     position: absolute;
-    inset: 8px;
+    inset: 0.5rem;
     background: repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.12) 0 2px,
@@ -994,7 +994,7 @@
   .capacity-bar {
     position: relative;
     display: flex;
-    height: 28px;
+    height: 1.75rem;
     background: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.5),
@@ -1033,7 +1033,7 @@
   @keyframes flash {
     from {
       opacity: 1;
-      text-shadow: 0 0 10px rgba(var(--stream-rgb), 0.8);
+      text-shadow: 0 0 0.625rem rgba(var(--stream-rgb), 0.8);
     }
     to {
       opacity: 0.5;
@@ -1045,36 +1045,36 @@
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 0.625rem;
   }
   .income-pill {
-    padding: 12px 14px;
+    padding: 0.75rem 0.875rem;
     background: rgba(28, 33, 30, 0.84);
     border: 2px solid var(--border-warm);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .action-deck {
     position: relative;
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 0.875rem;
   }
   .trade-market-grid {
     position: relative;
     z-index: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 14px;
+    gap: 0.875rem;
+    margin-top: 0.875rem;
   }
   .trade-col {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 14px;
+    gap: 0.625rem;
+    padding: 0.875rem;
     background: linear-gradient(
       180deg,
       rgba(31, 37, 33, 0.84),
@@ -1098,29 +1098,29 @@
   .tabbed-wing {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    padding: 24px;
+    gap: 1.125rem;
+    padding: 1.5rem;
   }
   .tab-strip {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    gap: 0.625rem;
   }
   .tab-chip {
-    min-height: 74px;
-    padding: 12px 14px;
+    min-height: 4.625rem;
+    padding: 0.75rem 0.875rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 8px;
+    gap: 0.5rem;
     background: linear-gradient(
       180deg,
       rgba(62, 51, 40, 0.95),
       rgba(33, 38, 34, 0.96)
     );
     border-color: var(--border-warm);
-    box-shadow: 4px 4px 0 var(--shadow-color);
+    box-shadow: 0.25rem 0.25rem 0 var(--shadow-color);
   }
   .tab-chip span {
     font-family: var(--font-display);
@@ -1149,7 +1149,7 @@
   .tab-panel {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0.875rem;
   }
   .scanner-panel :global(.mountain-map) {
     padding: 0;
@@ -1162,8 +1162,8 @@
   }
   .options-dock {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 1.25rem;
+    right: 1.25rem;
     z-index: 20;
     isolation: isolate;
   }
@@ -1175,8 +1175,8 @@
       rgba(42, 47, 41, 0.96)
     );
     border: none;
-    box-shadow: 6px 6px 0px var(--shadow-color);
-    padding: 6px;
+    box-shadow: 0.375rem 0.375rem 0px var(--shadow-color);
+    padding: 0.375rem;
     cursor: pointer;
     color: var(--text-warm);
     transition:
@@ -1200,21 +1200,21 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 10px;
-    width: min(280px, calc(100vw - 32px));
+    margin-top: 0.625rem;
+    width: min(17.5rem, calc(100vw - 2rem));
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.625rem;
     background: linear-gradient(
       180deg,
       rgba(46, 53, 48, 0.98),
       rgba(28, 33, 29, 0.99)
     );
     border: 2px solid var(--border-color);
-    padding: 15px;
+    padding: 0.9375rem;
     box-shadow:
       0 0 0 1px rgba(var(--wood-rgb), 0.18) inset,
-      4px 4px 0px #000;
+      0.25rem 0.25rem 0px #000;
     z-index: 1;
   }
   .options-title {
@@ -1226,7 +1226,7 @@
     background-color: var(--wood-dark);
   }
   .event-placeholder {
-    padding: 14px;
+    padding: 0.875rem;
     border: 2px solid var(--border-warm);
     background: linear-gradient(
       180deg,
@@ -1235,12 +1235,12 @@
     );
   }
   .event-placeholder p {
-    margin: 8px 0 0;
+    margin: 0.5rem 0 0;
     color: #d6d7c9;
   }
   .dragon-btn {
-    min-height: 110px;
-    padding: 18px 22px;
+    min-height: 6.875rem;
+    padding: 1.125rem 1.375rem;
     font-size: 1.5em;
     background: linear-gradient(180deg, #5d764d 0%, #3c573d 60%, #26372d 100%);
     color: var(--text-bright);
@@ -1250,7 +1250,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 6px;
+    gap: 0.375rem;
   }
   .dragon-btn span {
     color: #c8ddc2;
@@ -1272,15 +1272,15 @@
   .purchase-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-top: 10px;
-    max-height: 400px;
+    gap: 0.9375rem;
+    margin-top: 0.625rem;
+    max-height: 25rem;
     overflow-y: auto;
-    padding-right: 10px;
+    padding-right: 0.625rem;
   }
   /* Custom scrollbar for pixel art feel */
   .purchase-list::-webkit-scrollbar {
-    width: 12px;
+    width: 0.75rem;
   }
   .purchase-list::-webkit-scrollbar-track {
     background: var(--bg-color);
@@ -1295,9 +1295,9 @@
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.3);
-    padding: 15px;
+    padding: 0.9375rem;
     border: 2px solid var(--border-color);
-    gap: 15px;
+    gap: 0.9375rem;
   }
   .themed-card {
     border-color: var(--border-warm);
@@ -1324,7 +1324,7 @@
     opacity: 0.7;
   }
   .building-card {
-    min-height: 120px;
+    min-height: 7.5rem;
   }
   .building-card .info {
     width: 100%;
@@ -1333,7 +1333,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    gap: 16px;
+    gap: 1rem;
   }
   .building-action-row {
     display: flex;
@@ -1345,19 +1345,19 @@
     color: var(--text-cream);
   }
   .purchase-item .info p {
-    margin: 5px 0 0 0;
+    margin: 0.3125rem 0 0 0;
     font-size: 1rem;
     color: #cfd7c5;
   }
   .purchase-item button {
     font-size: 1em;
-    padding: 8px 15px;
+    padding: 0.5rem 0.9375rem;
   }
   .purchase-item button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 4px 4px 0px #000;
+    box-shadow: 0.25rem 0.25rem 0px #000;
   }
   .unlock-badge {
     color: #b7d0a4;
@@ -1371,24 +1371,24 @@
   @keyframes pulse {
     0% {
       transform: scale(1);
-      box-shadow: 4px 4px 0px #000;
+      box-shadow: 0.25rem 0.25rem 0px #000;
     }
     50% {
       transform: scale(1.05);
       box-shadow:
-        6px 6px 0px #000,
-        0 0 10px #a8c58e;
+        0.375rem 0.375rem 0px #000,
+        0 0 0.625rem #a8c58e;
     }
     100% {
       transform: scale(1);
-      box-shadow: 4px 4px 0px #000;
+      box-shadow: 0.25rem 0.25rem 0px #000;
     }
   }
 
   .active-badge {
     color: var(--text-accent);
     font-size: 1rem;
-    margin-left: 5px;
+    margin-left: 0.3125rem;
   }
 
   .upgrade-item {
@@ -1397,21 +1397,21 @@
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.3);
-    padding: 8px;
+    padding: 0.5rem;
     border: 1px solid var(--border-warm);
-    gap: 10px;
+    gap: 0.625rem;
   }
   .wing-upgrade {
     border: 2px solid var(--border-warm);
   }
   .upgrade-info {
     text-align: left;
-    flex: 1 1 200px;
+    flex: 1 1 12.5rem;
     max-width: 100%;
   }
 
   dialog {
-    min-width: 300px;
+    min-width: 18.75rem;
     text-align: center;
     color: var(--text-main);
   }
@@ -1434,7 +1434,7 @@
     }
   }
 
-  @media (max-width: 980px) {
+  @media (max-width: 61.25rem) {
     .hero-grid,
     .trade-market-grid,
     .resource-readout-grid,
