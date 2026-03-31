@@ -28,6 +28,7 @@ export type MountainLayer = {
 };
 
 export type Mountain = {
+  name: string;
   coordinates: { x: number; y: number };
   currentLayerIndex: number;
 };

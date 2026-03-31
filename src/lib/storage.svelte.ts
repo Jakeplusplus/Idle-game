@@ -72,6 +72,10 @@ export function hydrateGameState(data: SavedGameData) {
   if (data.mountain && typeof data.mountain === "object") {
     const coordinates = data.mountain.coordinates;
     nextState.mountain = {
+      name:
+        typeof data.mountain.name === "string" && data.mountain.name.trim().length > 0
+          ? data.mountain.name.trim()
+          : nextState.mountain.name,
       coordinates: {
         x: sanitizeNumber(coordinates?.x, nextState.mountain.coordinates.x),
         y: sanitizeNumber(coordinates?.y, nextState.mountain.coordinates.y),

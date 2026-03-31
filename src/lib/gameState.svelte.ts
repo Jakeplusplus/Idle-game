@@ -1,4 +1,5 @@
 import type { GameState } from "./types.js";
+import { generateFantasyName } from "./names.js";
 
 export function createDefaultGameState(): GameState {
   return {
@@ -19,6 +20,7 @@ export function createDefaultGameState(): GameState {
       lizardfolk: 0,
     },
     mountain: {
+      name: generateFantasyName("mountain"),
       coordinates: { x: 0, y: 0 },
       currentLayerIndex: 0,
     },

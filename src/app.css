@@ -3,7 +3,7 @@
 :root {
   --bg-color: #18201b;
   --panel-bg: #2f342f;
-  --text-main: #ecf0e8;
+  --text-main: #cfc56e;
   --text-accent: #c6d8a8;
   --border-color: #6a5d49;
   --hover-color: #46503f;
@@ -20,10 +20,6 @@
   --stream-dark: #38586a;
   --stream-light: #82b6c8;
   /* Extended text palette */
-  --text-label: #c8ba9a;
-  --text-warm: #d7ccaa;
-  --text-cream: #e8dec3;
-  --text-bright: #f4f6ef;
   --text-muted: #667063;
   /* Secondary borders */
   --border-warm: #6b5a46;
@@ -71,8 +67,7 @@ h4 {
   color: var(--text-accent);
 }
 
-button,
-.btn {
+button {
   display: inline-block;
   background-color: var(--panel-bg);
   color: var(--text-main);
@@ -91,9 +86,7 @@ button,
   box-sizing: border-box;
 }
 
-button:hover,
-.btn:hover,
-.btn:focus-within {
+button:hover {
   background-color: var(--hover-color);
   transform: translate(-2px, -2px);
   box-shadow: 0.375rem 0.375rem 0px var(--shadow-color);
@@ -101,15 +94,13 @@ button:hover,
 }
 
 button:focus-visible,
-.btn:focus-visible,
 input:focus-visible,
 dialog:focus-visible {
   outline: 3px solid var(--text-accent);
   outline-offset: 4px;
 }
 
-button:active,
-.btn:active {
+button:active {
   transform: translate(2px, 2px);
   box-shadow: 0px 0px 0px var(--shadow-color);
 }
@@ -119,4 +110,32 @@ button:active,
   border: 4px solid var(--border-color);
   padding: 1.25rem;
   box-shadow: 0.5rem 0.5rem 0px var(--shadow-color);
+}
+
+.panel,
+.dither {
+  position: relative;
+  padding-bottom: 2.5rem;
+}
+
+/* Normally, I try to avoid affecting z-index where possible, but I'm changing z-index here to allow the dithering image mask to appear behind content. */
+.panel > *,
+.dither > * {
+  z-index: 1;
+}
+
+.panel::after,
+.dither::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--shadow-color);
+  mask-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAi0lEQVR4AeyWMQ6AMBRCq/e/s/Katunm1I8DxgTRRB64eDfzEYAskAWyQBbIAlkgC/xigWf8FFmUBa4BYFEALM1VuucCQHMMqvsNLfMAzDAUAHRCHPcAzDCLArA3LocAoDxU33WVBmAZPeAs9QDsCwBQ6gGgMcEWBYDGAFgUAEtzNe65AOj63Pn15hcAAP//MD4opwAAAAZJREFUAwBPAqAhlP9b3AAAAABJRU5ErkJggg==");
+  mask-size: 4.5rem;
+  mask-position: bottom;
+  mask-composite: intersect;
+  mask-repeat: repeat-x;
 }

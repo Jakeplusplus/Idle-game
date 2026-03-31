@@ -365,16 +365,12 @@
 
   <section class="hero-grid">
     <div class="panel hoard-display forest-panel">
-      <div class="panel-kicker">Timber Vault</div>
+      <div class="panel-kicker">{game.mountain.name}</div>
       <div class="panel-brackets" aria-hidden="true"></div>
       <div class="pixel-rivets" aria-hidden="true"></div>
       <div class="hoard-heading-row">
         <div>
           <h2 class:cap-signal={showCappedUi}>Dragon Hoard</h2>
-          <p class="scanner-copy">
-            Timber braces, stone gauges, and stream channels update in real
-            time.
-          </p>
         </div>
         <div class="vault-usage">
           <span class="status-label">Capacity Usage</span>
@@ -429,9 +425,7 @@
 
       <div class="capped-warning-slot" aria-live="polite">
         {#if showCappedUi}
-          <p class="capped-warning">
-            HOARD FULL! Clear new caverns in the ridge!
-          </p>
+          <p class="capped-warning">HOARD FULL! Clear new caverns!</p>
         {/if}
       </div>
 
@@ -488,7 +482,7 @@
     {#if activeTab === "brood"}
       <div class="tab-panel">
         <h3>Brood Registry</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Recruit loyal creatures to gather treasure and carve out a steady
           mountain holdfast.
         </p>
@@ -512,9 +506,9 @@
     {/if}
 
     {#if activeTab === "depths"}
-      <div class="tab-panel scanner-panel">
+      <div class="tab-panel section-panel">
         <h3>Terrain Survey</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Track excavation progress and watch each new shelf of the mountain
           open beneath the grove.
         </p>
@@ -525,7 +519,7 @@
     {#if activeTab === "construction"}
       <div class="tab-panel">
         <h3>Construction</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Raise lodges, tunnels, and workshops to expand the roost. Each major
           structure unlocks a new control wing.
         </p>
@@ -569,7 +563,7 @@
     {#if activeTab === "trade"}
       <div class="tab-panel">
         <h3>Market Trading</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Mountain caravans trade gold and ore along winding passes and cold
           river crossings.
         </p>
@@ -626,7 +620,7 @@
     {#if activeTab === "forge"}
       <div class="tab-panel">
         <h3>Forge</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Smithing breakthroughs reinforce your mountain hold and unlock deeper
           excavation routes.
         </p>
@@ -659,7 +653,7 @@
     {#if activeTab === "workshop"}
       <div class="tab-panel">
         <h3>Workshop</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           Engineering upgrades turn your labor force into a true highland
           excavation crew.
         </p>
@@ -692,7 +686,7 @@
     {#if activeTab === "events"}
       <div class="tab-panel">
         <h3>Visitors, Raids, and Rumors</h3>
-        <p class="scanner-copy">
+        <p class="section-lead">
           This chamber will surface wanderers, caravans, raiders, and rare
           mountain events once the supporting buildings are raised.
         </p>
@@ -713,7 +707,7 @@
         <p>
           Accumulate at least 10,000 gold to attract a mate and lay a hatchling.
         </p>
-        <p class="scanner-copy">
+        <p class="section-lead">
           The Hatchery prepares future generations. Larger mountain vaults
           produce stronger inherited traits.
         </p>
@@ -784,7 +778,7 @@
   .glow {
     position: fixed;
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
     width: 26.25rem;
     height: 26.25rem;
     border-radius: 50%;
@@ -808,7 +802,6 @@
   }
   .container > :not(.glow) {
     position: relative;
-    z-index: 1;
   }
   .forest-panel {
     position: relative;
@@ -850,7 +843,6 @@
   }
   .panel-kicker {
     position: relative;
-    z-index: 1;
     margin-bottom: 0.625rem;
     color: var(--text-warm);
     font-family: var(--font-display);
@@ -863,7 +855,6 @@
   }
   .header-title-row {
     position: relative;
-    z-index: 1;
     display: flex;
     justify-content: space-between;
     gap: 1.5rem;
@@ -871,13 +862,13 @@
   }
   .header h1,
   .hoard-display h2,
-  .scanner-panel h3 {
+  .section-panel h3 {
     font-family: var(--font-display);
     font-size: clamp(1rem, 2vw, 1.45rem);
     line-height: 1.4;
   }
   .header-subtitle,
-  .scanner-copy {
+  .section-lead {
     margin: 0.625rem 0 0;
     color: var(--text-warm);
     font-size: 1.15rem;
@@ -903,7 +894,6 @@
   }
   .status-label,
   .resource-label {
-    color: var(--text-label);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-size: 1rem;
@@ -912,7 +902,6 @@
   .resource-card strong,
   .vault-usage strong,
   .income-pill strong {
-    color: var(--text-bright);
     font-size: 1.35rem;
     font-weight: normal;
   }
@@ -946,7 +935,6 @@
   }
   .resource-readout-grid {
     position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
@@ -972,7 +960,6 @@
   }
   .capacity-shell {
     position: relative;
-    z-index: 1;
     padding: 0.5rem;
     border: 3px solid var(--border-warm);
     background: rgba(22, 26, 24, 0.9);
@@ -1020,7 +1007,6 @@
     filter: saturate(1.05);
   }
   .capped-warning {
-    color: var(--text-warm);
     font-size: 1.2em;
     font-weight: bold;
     margin: 0;
@@ -1042,7 +1028,6 @@
   }
   .income-rack {
     position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.625rem;
@@ -1057,14 +1042,12 @@
   }
   .action-deck {
     position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.875rem;
   }
   .trade-market-grid {
     position: relative;
-    z-index: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.875rem;
@@ -1085,7 +1068,6 @@
   }
   .trade-col-label {
     margin: 0;
-    color: var(--text-warm);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-family: var(--font-display);
@@ -1126,7 +1108,6 @@
     font-family: var(--font-display);
     font-size: 1rem;
     line-height: 1.5;
-    color: var(--text-cream);
   }
   .tab-chip small {
     font-family: var(--font-pixel);
@@ -1141,7 +1122,6 @@
       rgba(65, 82, 64, 0.98)
     );
     border-color: #c0b184;
-    color: var(--text-bright);
   }
   .locked-tab {
     opacity: 0.55;
@@ -1151,20 +1131,20 @@
     flex-direction: column;
     gap: 0.875rem;
   }
-  .scanner-panel :global(.mountain-map) {
+  .section-panel :global(.mountain-map) {
     padding: 0;
     border: 0;
     box-shadow: none;
     background: transparent;
   }
-  .scanner-panel :global(h3) {
+  .section-panel :global(h3) {
     display: none;
   }
   .options-dock {
     position: fixed;
     top: 1.25rem;
     right: 1.25rem;
-    z-index: 20;
+    z-index: 10;
     isolation: isolate;
   }
   .gear-btn {
@@ -1178,7 +1158,6 @@
     box-shadow: 0.375rem 0.375rem 0px var(--shadow-color);
     padding: 0.375rem;
     cursor: pointer;
-    color: var(--text-warm);
     transition:
       transform 0.2s,
       color 0.2s,
@@ -1191,7 +1170,6 @@
       rgba(112, 94, 71, 0.98),
       rgba(64, 82, 72, 0.98)
     );
-    color: var(--text-bright);
   }
   .gear-btn:active {
     box-shadow: 0px 0px 0px #000;
@@ -1220,7 +1198,6 @@
   .options-title {
     font-family: var(--font-display);
     font-size: 1rem;
-    color: var(--text-warm);
   }
   .danger-btn {
     background-color: var(--wood-dark);
@@ -1243,7 +1220,6 @@
     padding: 1.125rem 1.375rem;
     font-size: 1.5em;
     background: linear-gradient(180deg, #5d764d 0%, #3c573d 60%, #26372d 100%);
-    color: var(--text-bright);
     border-color: #91a47e;
     text-shadow: 2px 2px 0px #000;
     display: flex;
@@ -1342,7 +1318,6 @@
   }
   .purchase-item .info strong {
     font-size: 1.2em;
-    color: var(--text-cream);
   }
   .purchase-item .info p {
     margin: 0.3125rem 0 0 0;
@@ -1426,10 +1401,8 @@
     }
 
     .capacity-fill,
-    .stratum-fill,
     .gear-btn,
-    button,
-    .btn {
+    button {
       transition: none;
     }
   }

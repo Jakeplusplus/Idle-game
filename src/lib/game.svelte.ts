@@ -148,6 +148,7 @@ export function resetHoard() {
   game.buildings = {};
   game.upgrades = {};
   game.mountain = {
+    name: game.mountain.name,
     coordinates: game.mountain.coordinates,
     currentLayerIndex: 0,
   };
