@@ -124,6 +124,145 @@ button:active {
   z-index: 1;
 }
 
+/* ── Shared panel decorations ───────────────────────────────────────── */
+.forest-panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(55, 62, 56, 0.94), rgba(34, 39, 35, 0.97)),
+    linear-gradient(
+      90deg,
+      rgba(var(--wood-rgb), 0.08),
+      transparent 35%,
+      rgba(var(--stream-rgb), 0.07)
+    );
+  border-color: var(--border-color);
+  box-shadow:
+    0 0 0 2px rgba(20, 24, 21, 0.75) inset,
+    0.5rem 0.5rem 0px var(--shadow-color);
+  overflow: hidden;
+}
+.panel-brackets {
+  position: absolute;
+  inset: 0.625rem;
+  pointer-events: none;
+}
+.pixel-rivets {
+  position: absolute;
+  inset-inline: 1.125rem;
+  top: 1rem;
+  height: 0.5rem;
+  pointer-events: none;
+  background: radial-gradient(square at left center, #c7b696 0 35%, transparent 40%) 0 0 / 48px 8px
+    repeat-x;
+  opacity: 0.45;
+}
+.panel-kicker {
+  position: relative;
+  margin-bottom: 0.625rem;
+  color: var(--text-warm);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── Shared text / label utilities ─────────────────────────────────── */
+.status-label,
+.resource-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+}
+.status-chip strong,
+.resource-card strong,
+.vault-usage strong,
+.income-pill strong {
+  font-size: 1.25rem;
+  font-weight: normal;
+}
+.section-lead {
+  margin: 0.625rem 0 0;
+  color: var(--text-warm);
+  font-size: 1.05rem;
+}
+.active-badge {
+  color: var(--text-accent);
+  font-size: 1rem;
+  margin-left: 0.3125rem;
+}
+.danger-btn {
+  background-color: var(--wood-dark);
+}
+
+/* ── Shared card / list styles ──────────────────────────────────────── */
+.themed-card {
+  border-color: var(--border-warm);
+  background: linear-gradient(180deg, rgba(37, 43, 39, 0.82), rgba(67, 57, 46, 0.76));
+  box-shadow: 0 0 0 1px rgba(var(--wood-rgb), 0.08) inset;
+  position: relative;
+}
+.themed-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--pine-rgb), 0.08),
+    transparent 18%,
+    transparent 82%,
+    rgba(var(--stream-rgb), 0.08)
+  );
+  opacity: 0.7;
+}
+.purchase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9375rem;
+  margin-top: 0.625rem;
+  max-height: 30rem;
+  overflow-y: auto;
+  padding-right: 0.625rem;
+}
+.purchase-list::-webkit-scrollbar {
+  width: 0.75rem;
+}
+.purchase-list::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+}
+.purchase-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+.purchase-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.9375rem;
+  border: 2px solid var(--border-color);
+  gap: 0.9375rem;
+}
+.purchase-item .info strong {
+  font-size: 1.2em;
+}
+.purchase-item .info p {
+  margin: 0.3125rem 0 0 0;
+  font-size: 1rem;
+  color: #cfd7c5;
+}
+.purchase-item button {
+  font-size: 1em;
+  padding: 0.5rem 0.9375rem;
+}
+.purchase-item button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0.25rem 0.25rem 0px #000;
+}
+
 .panel::after,
 .dither::after {
   content: "";
