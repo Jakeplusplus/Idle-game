@@ -7,6 +7,7 @@ export function createDefaultGameState(): GameState {
     maxCapacity: 0, // Miners will dig this up towards the initial layout limit
     ore: 0,
     generation: 1,
+    dragonName: generateFantasyName("dragon"),
     stats: {
       clickPower: 1,
       luck: 1,
@@ -35,6 +36,7 @@ export function replaceGameState(nextState: GameState) {
   game.maxCapacity = nextState.maxCapacity;
   game.ore = nextState.ore;
   game.generation = nextState.generation;
+  game.dragonName = nextState.dragonName;
   game.stats = nextState.stats;
   game.minions = nextState.minions;
   game.mountain = nextState.mountain;

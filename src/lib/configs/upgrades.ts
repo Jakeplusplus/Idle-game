@@ -31,7 +31,7 @@ export const UPGRADES: UpgradeConfig[] = [
   // Invention Lab (Engineering -> Excavation Rate Multipliers)
   {
     id: "ergonomic_shovels",
-    buildingId: "invention_lab",
+    buildingId: "workshop",
     name: "Ergonomic Shovels",
     oreCost: 500,
     effect: "capacity_boost",
@@ -40,7 +40,7 @@ export const UPGRADES: UpgradeConfig[] = [
   },
   {
     id: "reinforced_pickaxes",
-    buildingId: "invention_lab",
+    buildingId: "workshop",
     name: "Reinforced Pickaxes",
     oreCost: 2000,
     effect: "capacity_boost",
@@ -49,7 +49,7 @@ export const UPGRADES: UpgradeConfig[] = [
   },
   {
     id: "steam_rotary_drills",
-    buildingId: "invention_lab",
+    buildingId: "workshop",
     name: "Steam Rotary Drills",
     oreCost: 10000,
     effect: "capacity_boost",

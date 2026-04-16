@@ -38,6 +38,7 @@ export type GameState = {
   maxCapacity: number;
   ore: number;
   generation: number;
+  dragonName: string;
   stats: GameStats;
   minions: Minions;
   mountain: Mountain;

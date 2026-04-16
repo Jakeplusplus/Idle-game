@@ -31,6 +31,13 @@ State, logic, and persistence are strictly separated:
 - `src/lib/config.ts` — static data (MOUNTAIN_LAYERS array, 8 progressive layers)
 - `src/routes/+page.svelte` — single-page UI, no business logic
 
+## Code Architecture
+
+- Prefer small, focused files over large monolithic ones — follow the existing separation of concerns (state in `gameState`, logic in `game`, UI in components)
+- When a file exceeds ~200–300 lines or mixes concerns, split it into focused modules before adding more
+- Extract repeated UI patterns into `src/lib/components/` rather than duplicating in `+page.svelte`
+- New game systems (e.g., a new minion type, a new prestige mechanic) should have their own module under `src/lib/`, not be folded into `game.svelte.ts`
+
 ## Key Game Systems
 
 - **Click**: `clickGold()` adds gold based on `stats.clickPower`

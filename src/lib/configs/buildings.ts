@@ -9,8 +9,8 @@ export const BUILDINGS: BuildingConfig[] = [
       "A roaring furnace dedicated to metallurgy. Smelts harder materials capable of piercing deeper into the mountain's bedrock.",
   },
   {
-    id: "invention_lab",
-    name: "Invention Lab",
+    id: "workshop",
+    name: "Workshop",
     goldCost: 1500,
     description:
       "A workshop dedicated to Kobold engineering. Unlocks blueprints that drastically improve physical excavation speeds.",

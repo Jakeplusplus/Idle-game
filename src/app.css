@@ -40,6 +40,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  overscroll-behavior: auto;
+  background: #2c3b3c;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -116,12 +122,6 @@ button:active {
 .dither {
   position: relative;
   padding-bottom: 2.5rem;
-}
-
-/* Normally, I try to avoid affecting z-index where possible, but I'm changing z-index here to allow the dithering image mask to appear behind content. */
-.panel > *,
-.dither > * {
-  z-index: 1;
 }
 
 /* ── Shared panel decorations ───────────────────────────────────────── */
@@ -261,6 +261,12 @@ button:active {
   cursor: not-allowed;
   transform: none;
   box-shadow: 0.25rem 0.25rem 0px #000;
+}
+
+/* Normally, I try to avoid affecting z-index where possible, but I'm changing z-index here to allow the dithering image mask to appear behind content. */
+.panel > *,
+.dither > * {
+  z-index: 1;
 }
 
 .panel::after,

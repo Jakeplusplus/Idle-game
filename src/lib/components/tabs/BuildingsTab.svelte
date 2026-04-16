@@ -24,7 +24,7 @@
   function isBuildingTabUnlocked(tabId: BuildingTabId) {
     if (tabId === "construction") return true;
     if (tabId === "forge") return Boolean(game.buildings.blacksmith);
-    if (tabId === "workshop") return Boolean(game.buildings.invention_lab);
+    if (tabId === "workshop") return Boolean(game.buildings.workshop);
     if (tabId === "bloodline") return Boolean(game.buildings.hatchery);
     return false;
   }
@@ -78,7 +78,7 @@
               <span class="active-badge">(Constructed)</span>
             {:else if building.id === "blacksmith"}
               <span class="active-badge unlock-badge">Unlocks Forge</span>
-            {:else if building.id === "invention_lab"}
+            {:else if building.id === "workshop"}
               <span class="active-badge unlock-badge">Unlocks Workshop</span>
             {:else if building.id === "hatchery"}
               <span class="active-badge unlock-badge">Unlocks Bloodline</span>
@@ -144,7 +144,7 @@
       crew.
     </p>
     <div class="purchase-list">
-      {#each UPGRADES.filter((u) => u.buildingId === "invention_lab") as upgrade (upgrade.id)}
+      {#each UPGRADES.filter((u) => u.buildingId === "workshop") as upgrade (upgrade.id)}
         <div class="upgrade-item themed-card wing-upgrade">
           <div class="upgrade-info">
             <strong>{upgrade.name}</strong>

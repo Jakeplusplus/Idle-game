@@ -7,6 +7,7 @@ import { MINIONS } from "./configs/minions.js";
 import { BUILDINGS } from "./configs/buildings.js";
 import { UPGRADES } from "./configs/upgrades.js";
 import { TRADING } from "./configs/trading.js";
+import { generateFantasyName } from "./names.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
@@ -170,6 +171,7 @@ export function attractMate() {
 
   resetHoard();
   game.generation += 1;
+  game.dragonName = generateFantasyName("dragon");
 
   saveGame();
   return true;
@@ -205,24 +207,20 @@ export function startGameLoop() {
     const totalOrePerSec = calculatePassiveOre();
     const totalCapacityPerSec = calculatePassiveCapacity();
 
-    if (totalOrePerSec > 0 || totalCapacityPerSec > 0) {
-      const capacityLimit = getCurrentCapacityLimit();
-      if (game.maxCapacity < capacityLimit && totalCapacityPerSec > 0) {
-        game.maxCapacity += totalCapacityPerSec * delta;
-        if (game.maxCapacity > capacityLimit) {
-          game.maxCapacity = capacityLimit;
-        }
+    const capacityLimit = getCurrentCapacityLimit();
+    if (game.maxCapacity < capacityLimit && totalCapacityPerSec > 0) {
+      game.maxCapacity += totalCapacityPerSec * delta;
+      if (game.maxCapacity > capacityLimit) {
+        game.maxCapacity = capacityLimit;
       }
+    }
 
-      const totalResourcesForOre = game.gold + game.ore;
-      if (totalOrePerSec > 0 && totalResourcesForOre < game.maxCapacity) {
-        game.ore += totalOrePerSec * delta;
-        if (game.gold + game.ore > game.maxCapacity) {
-          game.ore = game.maxCapacity - game.gold;
-        }
+    const totalResources = game.gold + game.ore;
+    if (totalOrePerSec > 0 && totalResources < game.maxCapacity) {
+      game.ore += totalOrePerSec * delta;
+      if (game.gold + game.ore > game.maxCapacity) {
+        game.ore = game.maxCapacity - game.gold;
       }
-
-      // Empty branch intentionally removed RNG drops
     }
 
     const incomePerSec = calculatePassiveIncome();

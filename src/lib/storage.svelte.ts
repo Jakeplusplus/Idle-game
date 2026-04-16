@@ -41,6 +41,10 @@ export function hydrateGameState(data: SavedGameData) {
     1,
     Math.floor(sanitizeNumber(data.generation, nextState.generation)),
   );
+  nextState.dragonName =
+    typeof data.dragonName === "string" && data.dragonName.trim().length > 0
+      ? data.dragonName.trim()
+      : nextState.dragonName;
 
   if (data.stats && typeof data.stats === "object") {
     nextState.stats = {
