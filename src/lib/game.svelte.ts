@@ -161,12 +161,12 @@ export function attractMate() {
 
   let totalPoints = Math.floor(game.gold / 10000);
 
+  // Armor excluded from suitor stat pool — activates with future map system.
   for (let i = 0; i < totalPoints; i++) {
-    const rand = Math.floor(Math.random() * 4);
+    const rand = Math.floor(Math.random() * 3);
     if (rand === 0) game.stats.clickPower += 1;
     else if (rand === 1) game.stats.luck += 1;
-    else if (rand === 2) game.stats.beauty += 1;
-    else game.stats.armor += 1;
+    else game.stats.beauty += 1;
   }
 
   resetHoard();

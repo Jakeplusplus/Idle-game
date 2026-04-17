@@ -2,6 +2,7 @@ export type GameStats = {
   clickPower: number;
   luck: number;
   beauty: number;
+  // Armor activates with the future map system — excluded from suitor stat pool until then.
   armor: number;
 };
 
