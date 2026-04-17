@@ -1,5 +1,7 @@
 <script lang="ts">
   import MountainStrataMap from "$lib/components/MountainStrataMap.svelte";
+  import TreasureVault from "$lib/components/TreasureVault.svelte";
+  import { game } from "$lib/game.svelte.js";
 </script>
 
 <div class="tab-panel section-panel">
@@ -9,6 +11,10 @@
     beneath the grove.
   </p>
   <MountainStrataMap />
+
+  {#if game.buildings.treasure_vault}
+    <TreasureVault />
+  {/if}
 </div>
 
 <style>
