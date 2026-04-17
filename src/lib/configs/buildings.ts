@@ -22,5 +22,11 @@ export const BUILDINGS: BuildingConfig[] = [
     description:
       "A furnace-warm nursery chamber for eggs and heirs. Unlocks the Bloodline wing where future generations are prepared.",
   },
-  // We can add more buildings later like "Treasure Vault"
+  {
+    id: "treasure_vault",
+    name: "Treasure Vault",
+    goldCost: 8000,
+    description:
+      "A warded stone chamber for hoarding rare finds. Activates treasure effects when items are slotted within.",
+  },
 ];

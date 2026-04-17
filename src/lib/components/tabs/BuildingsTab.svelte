@@ -82,6 +82,8 @@
               <span class="active-badge unlock-badge">Unlocks Workshop</span>
             {:else if building.id === "hatchery"}
               <span class="active-badge unlock-badge">Unlocks Bloodline</span>
+            {:else if building.id === "treasure_vault"}
+              <span class="active-badge unlock-badge">Unlocks Vault</span>
             {/if}
             <div class="building-description-row">
               <p>{building.description}</p>

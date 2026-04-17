@@ -1,5 +1,8 @@
 import type { TreasureRarity, PassiveEffectType } from "../types.js";
 
+// Number of vault slots available when Treasure Vault is built.
+export const VAULT_SLOTS = 3;
+
 // Drop chance: baseTreasureChance * (1 + luck * LUCK_MULTIPLIER)
 export const BASE_TREASURE_CHANCE = 0.01;
 export const LUCK_MULTIPLIER = 0.1;
