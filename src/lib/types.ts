@@ -40,6 +40,10 @@ export type GameState = {
   // Passives — NOT cleared by resetHoard()
   activeGenerationPassive: PassiveEffect | null;
   lineagePassives: PassiveEffect[];
+  // Suitor system — persists until accepted or declined
+  pendingSuitor: Suitor | null;
+  // Treasure inventory — cleared by resetHoard()
+  treasureInventory: TreasureItem[];
   maxCapacity: number;
   ore: number;
   generation: number;
@@ -65,6 +69,36 @@ export type PassiveEffect = {
   description: string;
   type: PassiveEffectType;
   magnitude: number; // pct types: 0.10 = 10%; flat types: absolute value
+};
+
+export type SuitorRarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary";
+
+export type StatAllocation = {
+  stat: Exclude<keyof GameStats, "armor">; // armor excluded from suitor pool
+  amount: number;
+};
+
+export type Suitor = {
+  id: string;
+  name: string;
+  rarity: SuitorRarity;
+  statPoolSize: number;
+  statAllocations: StatAllocation[];
+  generationPassive: PassiveEffect | null;
+  lineagePassive: PassiveEffect | null;
+};
+
+export type TreasureRarity = "Common" | "Uncommon" | "Rare" | "Legendary";
+
+export type TreasureItem = {
+  id: string;
+  name: string;
+  rarity: TreasureRarity;
+  flavorText: string;
+  effectType: PassiveEffectType;
+  effectMagnitude: number;
+  tradeValue: number;
+  slotted: boolean;
 };
 
 export type BuildingConfig = {

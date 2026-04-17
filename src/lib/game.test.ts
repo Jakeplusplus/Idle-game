@@ -3,6 +3,7 @@ import {
   buyOre,
   buyUpgrade,
   calculatePassiveIncome,
+  calculateTreasureDropChance,
   clickBurrow,
   declineSuitor,
   generateSuitor,
@@ -245,6 +246,30 @@ describe("game rules", () => {
     expect(["Common", "Uncommon", "Rare", "Epic", "Legendary"]).toContain(s.rarity);
     expect(s.statPoolSize).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(s.statAllocations)).toBe(true);
+  });
+
+  // T-012: treasure drop chance formula
+  test("calculateTreasureDropChance returns higher rate at luck=10 vs luck=0", () => {
+    const at0 = calculateTreasureDropChance(0);
+    const at10 = calculateTreasureDropChance(10);
+    expect(at10).toBeGreaterThan(at0);
+  });
+
+  test("treasureInventory cleared by resetHoard", () => {
+    game.treasureInventory = [
+      {
+        id: "t1",
+        name: "Test",
+        rarity: "Common",
+        flavorText: "",
+        effectType: "gold_income_pct",
+        effectMagnitude: 0.01,
+        tradeValue: 10,
+        slotted: false,
+      },
+    ];
+    resetHoard();
+    expect(game.treasureInventory).toHaveLength(0);
   });
 
   // T-010: beauty-weighted rarity roll

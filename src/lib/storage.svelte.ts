@@ -128,6 +128,14 @@ export function hydrateGameState(data: SavedGameData) {
   if (Array.isArray(data.lineagePassives)) {
     nextState.lineagePassives = data.lineagePassives as typeof nextState.lineagePassives;
   }
+  // Pending suitor persists across saves
+  if (data.pendingSuitor && typeof data.pendingSuitor === "object") {
+    nextState.pendingSuitor = data.pendingSuitor as typeof nextState.pendingSuitor;
+  }
+  // Treasure inventory persists (cleared only by resetHoard/prestige)
+  if (Array.isArray(data.treasureInventory)) {
+    nextState.treasureInventory = data.treasureInventory as typeof nextState.treasureInventory;
+  }
 
   return nextState;
 }

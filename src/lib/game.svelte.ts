@@ -9,13 +9,14 @@ import { UPGRADES } from "./configs/upgrades.js";
 import { TRADING } from "./configs/trading.js";
 import { SUITOR_RARITY_WEIGHTS, SUITOR_BEAUTY_WEIGHT_BONUS } from "./configs/suitors.js";
 import { LINEAGE_PASSIVE_POOLS, GENERATION_PASSIVE_POOLS } from "./configs/passives.js";
+import { BASE_TREASURE_CHANCE, LUCK_MULTIPLIER } from "./configs/treasures.js";
 import { generateFantasyName } from "./names.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
 export { game } from "./gameState.svelte.js";
 
-import type { PassiveEffect, SuitorRarity, StatAllocation } from "./types.js";
+import type { PassiveEffect, SuitorRarity, StatAllocation, TreasureItem } from "./types.js";
 
 /** Aggregate all active passive effects (generation + lineage) additively. */
 function getAllActivePassives(): PassiveEffect[] {
@@ -170,6 +171,31 @@ export function clickBurrow() {
       game.ore = game.maxCapacity - game.gold;
     }
   }
+  rollTreasureDrop();
+}
+
+export function calculateTreasureDropChance(luck: number): number {
+  return BASE_TREASURE_CHANCE * (1 + luck * LUCK_MULTIPLIER);
+}
+
+// Generates a placeholder Common treasure. T-013 replaces with config-driven definitions + rarity.
+function generateTreasureItem(): TreasureItem {
+  return {
+    id: `treasure_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+    name: "Rough Gemstone",
+    rarity: "Common",
+    flavorText: "A dull stone with a faint shimmer.",
+    effectType: "gold_income_pct",
+    effectMagnitude: 0.02,
+    tradeValue: 50,
+    slotted: false,
+  };
+}
+
+function rollTreasureDrop() {
+  if (Math.random() < calculateTreasureDropChance(game.stats.luck)) {
+    game.treasureInventory = [...game.treasureInventory, generateTreasureItem()];
+  }
 }
 
 export function resetHoard() {
@@ -184,6 +210,7 @@ export function resetHoard() {
     currentLayerIndex: 0,
   };
   game.maxCapacity = 0;
+  game.treasureInventory = [];
 }
 
 export function rollSuitorRarity(beauty: number): SuitorRarity {
@@ -327,6 +354,11 @@ export function startGameLoop() {
       if (game.gold + game.ore > game.maxCapacity) {
         game.ore = game.maxCapacity - game.gold;
       }
+    }
+
+    // Treasure drop on miner passive tick
+    if (game.minions.miner > 0) {
+      rollTreasureDrop();
     }
 
     const incomePerSec = calculatePassiveIncome();
