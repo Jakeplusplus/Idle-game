@@ -1,6 +1,6 @@
 ---
 created: "2026-04-15T00:00:00Z"
-last_edited: "2026-04-15T00:00:00Z"
+last_edited: "2026-04-17T00:00:00Z"
 ---
 
 # Cavekit: Suitor Prestige
@@ -25,6 +25,7 @@ A suitor is generated when `gold >= 10000`. The suitor has a name, a rarity tier
 - [ ] Suitor stored in game state with all fields needed for display and application
 - [ ] Suitor stat allocations are pre-determined at generation time (not player-chosen) — the card shows the allocation, the player accepts or declines
 - [ ] Unit test: 10k gold → 1 stat point, 40k gold → 2 stat points, 90k gold → 3 stat points
+- [ ] `generateSuitor()` is invoked at runtime when gate conditions are met (gold ≥ 10k, no pending suitor) — via UI trigger in BuildingsTab or equivalent; not implementation-only
 
 **Dependencies:** cavekit-save-infrastructure.md R1 (new `pendingSuitor` state field requires migration layer)
 
@@ -84,7 +85,7 @@ EventsTab displays the pending suitor as a card. The card shows all information 
 - [ ] Suitor card uses `.panel` and `.dither` per DESIGN.md Section 4
 - [ ] Accept button uses `.btn-primary`, decline button uses `.btn-secondary` per DESIGN.md Section 4
 - [ ] Empty state shown when no suitor pending
-- [ ] Starter dragon (generation 0) empty state includes flavor text indicating no suitors yet
+- [ ] Starter dragon (generation 1, the default starting generation) empty state includes flavor text indicating no suitors yet
 - [ ] Empty state text uses `body` type per DESIGN.md Section 3
 
 **Dependencies:** none additional
@@ -133,4 +134,22 @@ Armor is not awarded by suitors and is hidden from DragonCard until the map syst
 - See also: cavekit-save-infrastructure.md (R1 required for new state fields)
 - See also: cavekit-progression-systems.md (armor removed from old `attractMate` pool)
 
+### R7: Suitor Generation Trigger Semantics
+
+Defines exactly when and how `generateSuitor` is invoked at runtime, and what happens after the player declines a suitor.
+
+**Acceptance Criteria:**
+
+- [ ] The BuildingsTab prestige button (or equivalent UI element) calls `generateSuitor()` when gold ≥ 10k and no suitor is pending
+- [ ] The legacy `attractMate()` function is removed; no parallel prestige code path remains
+- [ ] When a suitor is pending, the prestige button is either disabled with an explanatory tooltip or routes focus to EventsTab
+- [ ] After declining a suitor, the player may generate a new suitor immediately (no cooldown, no cost) once the same gate conditions are met again
+- [ ] Post-decline behavior is documented in the UI (button label or tooltip indicates "Generate Suitor" or equivalent)
+
+**Dependencies:** R1, R4
+
 ## Changelog
+
+- 2026-04-17: Added R1 criterion for runtime invocation of `generateSuitor()` — discovered during inspection (finding F-001)
+- 2026-04-17: Clarified R4 starter dragon text uses generation 1 (codebase convention) — finding F-007
+- 2026-04-17: Added R7 (Suitor Generation Trigger Semantics) — finding F-001/F-008; underspecified invocation contract allowed builder to ship unreachable code

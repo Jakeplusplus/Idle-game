@@ -1,11 +1,11 @@
 ---
 created: "2026-04-16T00:00:00Z"
-last_edited: "2026-04-16T00:00:00Z"
+last_edited: "2026-04-17T00:00:00Z"
 ---
 
 # Build Site
 
-21 tasks across 4 tiers from 4 kits.
+27 tasks across 5 tiers from 4 kits. (T-001–T-021 DONE; T-022–T-027 added after inspection cycle.)
 
 ---
 
@@ -527,6 +527,81 @@ graph LR
     T-017 --> T-020
     T-008 --> T-014
 ```
+
+---
+
+## Tier 4 — Bug Fixes / Integration (depends on Tiers 0-3 DONE)
+
+| Task  | Title                                                             | Cavekit                      | Requirement | Effort | From Finding |
+| ----- | ----------------------------------------------------------------- | ---------------------------- | ----------- | ------ | ------------ |
+| T-022 | Wire suitor generation trigger — replace attractMate with generateSuitor | cavekit-suitor-prestige.md   | R7          | S      | F-001        |
+| T-023 | Delete attractMate() — remove legacy prestige code path           | cavekit-suitor-prestige.md   | R7          | S      | F-001/F-006  |
+| T-024 | Fix treasure drop tick rate — wrap rollTreasureDrop in 1Hz accumulator | cavekit-treasure-system.md   | R1          | S      | F-002        |
+| T-025 | Fix vault ownership gate in getAllActivePassives and hydration     | cavekit-treasure-system.md   | R3          | S      | F-004        |
+| T-026 | Fix offline summary trigger — show for zero-income players        | cavekit-save-infrastructure.md | R2        | S      | F-003        |
+| T-027 | Clean up hardReset — remove redundant resetHoard call             | cavekit-save-infrastructure.md | R2        | XS     | F-005        |
+
+### T-022 — Wire suitor generation trigger
+
+**Kit:** cavekit-suitor-prestige.md R7
+**Effort:** S
+**Description:** In `src/lib/components/tabs/BuildingsTab.svelte`, replace `import { attractMate }` with `import { generateSuitor }` and change `onclick={attractMate}` to `onclick={generateSuitor}` on the prestige button. When `game.pendingSuitor` is set, disable the prestige button and show a tooltip directing the player to EventsTab, or navigate to EventsTab automatically.
+**Acceptance:**
+- `generateSuitor()` is invoked when player clicks prestige button at gold ≥ 10k with no pending suitor
+- Legacy `attractMate` no longer imported in any component
+- When suitor is pending, button is disabled with explanatory text
+
+### T-023 — Delete attractMate()
+
+**Kit:** cavekit-suitor-prestige.md R7
+**Effort:** S
+**Description:** Remove `attractMate()` function from `src/lib/game.svelte.ts` (around line 394). Remove its export. Ensure no other callers remain (already confirmed zero after T-022).
+**Acceptance:**
+- `attractMate` function does not exist in codebase
+- No imports of `attractMate` anywhere
+- `vp check` passes clean
+
+### T-024 — Fix treasure drop tick rate
+
+**Kit:** cavekit-treasure-system.md R1
+**Effort:** S
+**Description:** In `src/lib/game.svelte.ts` `tick()` function, add a `minerTickTimer` accumulator. Increment by `delta` each frame; when it reaches ≥ 1.0, decrement by 1.0 and call `rollTreasureDrop()` once. This changes drop rate from ~60/sec to 1/sec, matching the "each miner passive tick" spec.
+**Acceptance:**
+- `rollTreasureDrop()` fires at most once per simulated second regardless of frame rate
+- `vp check` passes clean
+- Unit test added: 10s at 60fps → drop count consistent with per-second rate
+
+### T-025 — Fix vault ownership gate
+
+**Kit:** cavekit-treasure-system.md R3
+**Effort:** S
+**Description:** In `src/lib/game.svelte.ts` `getAllActivePassives()`, add a guard: skip the `treasureInventory` loop (or return early from it) when `!game.buildings.treasure_vault`. In `src/lib/storage.svelte.ts` `hydrateGameState`, after loading inventory, if `!loadedState.buildings?.treasure_vault`, set `slotted: false` on all inventory items before returning.
+**Acceptance:**
+- Slotted treasures produce no passive effects when vault not owned
+- Hydration clears slotted state when vault missing
+- Unit test: slot treasure, remove vault from state, call getAllActivePassives → no treasure effect
+
+### T-026 — Fix offline summary trigger for zero-income players
+
+**Kit:** cavekit-save-infrastructure.md R2
+**Effort:** S
+**Description:** In `src/lib/storage.svelte.ts`, move the `offlineProgressState.data = { ... }` assignment outside the `if (earnedGold > 0 || earnedOre > 0)` guard. The summary should show whenever `cappedSeconds > 60`, regardless of earnings. The earnings values (goldEarned: 0, oreEarned: 0) are still displayed honestly.
+**Acceptance:**
+- Player with zero minions returning after 2h sees offline summary
+- Summary correctly shows 0 gold and 0 ore earned
+- Players returning after < 60s still see no summary
+
+### T-027 — Clean up hardReset
+
+**Kit:** cavekit-save-infrastructure.md (housekeeping)
+**Effort:** XS
+**Description:** In `src/lib/storage.svelte.ts` `hardReset()`, remove the `resetHoard()` call (line ~230). It mutates state that is immediately overwritten by `replaceGameState(createDefaultGameState())`.
+**Acceptance:**
+- `hardReset()` no longer calls `resetHoard()`
+- Behavior of `hardReset()` is unchanged
+- `vp check` passes clean
+
+---
 
 ## Architect Report
 

@@ -1,6 +1,6 @@
 ---
 created: "2026-04-15T00:00:00Z"
-last_edited: "2026-04-15T00:00:00Z"
+last_edited: "2026-04-17T00:00:00Z"
 ---
 
 # Cavekit: Save Infrastructure
@@ -32,7 +32,7 @@ Offline credit is capped at 8 hours maximum. A summary screen appears when the p
 Acceptance Criteria:
 
 - [ ] Time away is capped at 8 \* 3600 seconds before applying passive income
-- [ ] Summary screen appears when capped offline time exceeds 60 seconds
+- [ ] Summary screen appears when capped offline time exceeds 60 seconds, regardless of whether any gold or ore was earned (a player with zero income sources still sees the summary)
 - [ ] Summary screen displays: gold earned, ore earned, time away (actual and capped if different)
 - [ ] Summary screen is dismissible with a single action
 - [ ] Summary screen UI uses .panel and .btn-primary per DESIGN.md Section 4
@@ -65,3 +65,5 @@ Dependencies: none
 - All other kits depend on this kit's R1 before adding new state fields
 
 ## Changelog
+
+- 2026-04-17: Strengthened R2 summary trigger criterion — screen must appear even with zero earnings — finding F-003; implementation gated summary on `earnedGold > 0 || earnedOre > 0`
