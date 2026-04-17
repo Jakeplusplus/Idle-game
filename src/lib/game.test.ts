@@ -6,12 +6,28 @@ import {
   getCurrentCapacityLimit,
   sellOre,
 } from "./game.svelte.js";
-import { createDefaultGameState, game, replaceGameState } from "./gameState.svelte.js";
+import {
+  createDefaultGameState,
+  game,
+  replaceGameState,
+  SAVE_VERSION,
+} from "./gameState.svelte.js";
 import { hydrateGameState } from "./storage.svelte.js";
 
 describe("game rules", () => {
   beforeEach(() => {
     replaceGameState(createDefaultGameState());
+  });
+
+  // T-001/T-002: save schema version + default-fill
+  test("hydrateGameState fills missing field with its default value", () => {
+    const defaults = createDefaultGameState();
+    // Omit saveVersion to simulate an old save predating the version field
+    const oldSave = { gold: 42, ore: 10 } as Parameters<typeof hydrateGameState>[0];
+    const hydrated = hydrateGameState(oldSave);
+    expect(hydrated.saveVersion).toBe(SAVE_VERSION);
+    expect(hydrated.generation).toBe(defaults.generation);
+    expect(hydrated.maxCapacity).toBe(defaults.maxCapacity);
   });
 
   test("hydrateGameState restores buildings and upgrades from saves", () => {

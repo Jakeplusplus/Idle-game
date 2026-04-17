@@ -1,8 +1,11 @@
 import type { GameState } from "./types.js";
 import { generateFantasyName } from "./names.js";
 
+export const SAVE_VERSION = 1;
+
 export function createDefaultGameState(): GameState {
   return {
+    saveVersion: SAVE_VERSION,
     gold: 0,
     maxCapacity: 0, // Miners will dig this up towards the initial layout limit
     ore: 0,
@@ -32,6 +35,7 @@ export function createDefaultGameState(): GameState {
 }
 
 export function replaceGameState(nextState: GameState) {
+  game.saveVersion = nextState.saveVersion;
   game.gold = nextState.gold;
   game.maxCapacity = nextState.maxCapacity;
   game.ore = nextState.ore;

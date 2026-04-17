@@ -34,6 +34,7 @@ export type Mountain = {
 };
 
 export type GameState = {
+  saveVersion: number;
   gold: number;
   maxCapacity: number;
   ore: number;

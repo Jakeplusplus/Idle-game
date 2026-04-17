@@ -1,5 +1,10 @@
 import { browser } from "$app/environment";
-import { createDefaultGameState, game, replaceGameState } from "./gameState.svelte.js";
+import {
+  createDefaultGameState,
+  game,
+  replaceGameState,
+  SAVE_VERSION,
+} from "./gameState.svelte.js";
 import {
   calculatePassiveIncome,
   calculatePassiveOre,
@@ -33,6 +38,9 @@ function sanitizeBooleanRecord(value: unknown) {
 export function hydrateGameState(data: SavedGameData) {
   const nextState = createDefaultGameState();
   const maxCapacity = data.maxCapacity ?? data.maxGoldCapacity;
+
+  // Normalize version: missing or mismatched version fills all new fields from defaults.
+  nextState.saveVersion = SAVE_VERSION;
 
   nextState.gold = sanitizeNumber(data.gold, nextState.gold);
   nextState.maxCapacity = sanitizeNumber(maxCapacity, nextState.maxCapacity);
