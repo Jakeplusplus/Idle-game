@@ -11,10 +11,12 @@ import {
   getCurrentCapacityLimit,
   getOreSellPrice,
   getPassiveBonus,
+  getTreasureSellPrice,
   resetHoard,
   rollSuitorRarity,
   rollTreasureRarity,
   sellOre,
+  sellTreasure,
   slotTreasure,
   unslotTreasure,
 } from "./game.svelte.js";
@@ -345,6 +347,53 @@ describe("game rules", () => {
 
     expect(game.lineagePassives).toHaveLength(1);
     expect(game.activeGenerationPassive).toEqual(gp);
+  });
+
+  // T-020: treasure sell with beauty multiplier
+  test("getTreasureSellPrice returns higher price at beauty=10 vs beauty=0", () => {
+    game.stats.beauty = 0;
+    const at0 = getTreasureSellPrice(100);
+    game.stats.beauty = 10;
+    const at10 = getTreasureSellPrice(100);
+    expect(at10).toBeGreaterThan(at0);
+  });
+
+  test("sellTreasure removes item and adds gold; cannot sell slotted", () => {
+    game.maxCapacity = 10000;
+    game.gold = 0;
+    game.stats.beauty = 0;
+    game.treasureInventory = [
+      {
+        id: "sell_me",
+        name: "Sell",
+        rarity: "Common",
+        flavorText: "",
+        effectType: "gold_income_pct",
+        effectMagnitude: 0.01,
+        tradeValue: 100,
+        slotted: false,
+      },
+      {
+        id: "slotted_one",
+        name: "Slotted",
+        rarity: "Rare",
+        flavorText: "",
+        effectType: "gold_income_pct",
+        effectMagnitude: 0.1,
+        tradeValue: 500,
+        slotted: true,
+      },
+    ];
+
+    const result = sellTreasure("sell_me");
+    expect(result).toBe(true);
+    expect(game.gold).toBeGreaterThan(0);
+    expect(game.treasureInventory).toHaveLength(1);
+    expect(game.treasureInventory[0].id).toBe("slotted_one");
+
+    const failResult = sellTreasure("slotted_one");
+    expect(failResult).toBe(false);
+    expect(game.treasureInventory).toHaveLength(1);
   });
 
   // T-019: slotting mechanic

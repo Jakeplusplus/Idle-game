@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { game, slotTreasure, unslotTreasure } from "$lib/game.svelte.js";
+  import {
+    game,
+    slotTreasure,
+    unslotTreasure,
+    getTreasureSellPrice,
+    sellTreasure,
+  } from "$lib/game.svelte.js";
   import { VAULT_SLOTS } from "$lib/configs/treasures.js";
   import type { TreasureRarity } from "$lib/types.js";
 
@@ -53,13 +59,21 @@
             <span class="treasure-name">{treasure.name}</span>
             <span class="treasure-rarity">{treasure.rarity}</span>
             <span class="treasure-effect body-text">{treasure.flavorText}</span>
-            <button
-              class="btn-primary slot-btn"
-              onclick={() => slotTreasure(treasure.id)}
-              disabled={!slotsAvailable}
-            >
-              Slot
-            </button>
+            <div class="item-actions">
+              <button
+                class="btn-primary slot-btn"
+                onclick={() => slotTreasure(treasure.id)}
+                disabled={!slotsAvailable}
+              >
+                Slot
+              </button>
+              <button
+                class="btn-secondary sell-btn"
+                onclick={() => sellTreasure(treasure.id)}
+              >
+                Sell ({Math.floor(getTreasureSellPrice(treasure.tradeValue))} gold)
+              </button>
+            </div>
           </div>
         {/each}
       </div>
@@ -168,10 +182,16 @@
     margin-top: 0.1rem;
   }
 
-  .slot-btn,
-  .unslot-btn {
-    align-self: flex-start;
+  .item-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
     margin-top: 0.35rem;
+  }
+
+  .slot-btn,
+  .unslot-btn,
+  .sell-btn {
     font-size: 1rem;
     padding: 0.3rem 0.75rem;
   }

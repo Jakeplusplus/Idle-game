@@ -198,6 +198,22 @@ export function clickBurrow() {
   rollTreasureDrop();
 }
 
+export function getTreasureSellPrice(tradeValue: number): number {
+  return tradeValue * (1 + game.stats.beauty * TRADING.BEAUTY_TRADE_MULTIPLIER);
+}
+
+export function sellTreasure(id: string): boolean {
+  const treasure = game.treasureInventory.find((t) => t.id === id);
+  if (!treasure || treasure.slotted) return false;
+  const price = getTreasureSellPrice(treasure.tradeValue);
+  game.gold += price;
+  if (game.gold + game.ore > game.maxCapacity) {
+    game.gold = game.maxCapacity - game.ore;
+  }
+  game.treasureInventory = game.treasureInventory.filter((t) => t.id !== id);
+  return true;
+}
+
 export function slotTreasure(id: string) {
   const treasure = game.treasureInventory.find((t) => t.id === id);
   if (!treasure || treasure.slotted) return;
