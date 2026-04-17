@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { game } from "$lib/game.svelte.js";
+  import { game, slotTreasure, unslotTreasure } from "$lib/game.svelte.js";
   import { VAULT_SLOTS } from "$lib/configs/treasures.js";
   import type { TreasureRarity } from "$lib/types.js";
 
@@ -11,7 +11,9 @@
   };
 
   const slottedTreasures = $derived(game.treasureInventory.filter((t) => t.slotted));
+  const unslottedTreasures = $derived(game.treasureInventory.filter((t) => !t.slotted));
   const emptySlots = $derived(VAULT_SLOTS - slottedTreasures.length);
+  const slotsAvailable = $derived(emptySlots > 0);
 </script>
 
 <div class="panel vault-panel">
@@ -20,21 +22,49 @@
     Slots: {slottedTreasures.length} / {VAULT_SLOTS} occupied
   </p>
 
-  <div class="slot-grid">
-    {#each slottedTreasures as treasure (treasure.id)}
-      <div class="vault-slot occupied {rarityClass[treasure.rarity]}">
-        <span class="treasure-name">{treasure.name}</span>
-        <span class="treasure-rarity">{treasure.rarity}</span>
-        <span class="treasure-effect body-text">{treasure.flavorText}</span>
-      </div>
-    {/each}
+  <div class="slot-section">
+    <h4 class="section-label">Active Slots</h4>
+    <div class="slot-grid">
+      {#each slottedTreasures as treasure (treasure.id)}
+        <div class="vault-slot occupied {rarityClass[treasure.rarity]}">
+          <span class="treasure-name">{treasure.name}</span>
+          <span class="treasure-rarity">{treasure.rarity}</span>
+          <span class="treasure-effect body-text">{treasure.flavorText}</span>
+          <button class="btn-secondary unslot-btn" onclick={() => unslotTreasure(treasure.id)}>
+            Unslot
+          </button>
+        </div>
+      {/each}
 
-    {#each { length: emptySlots } as _, i (i)}
-      <div class="vault-slot empty">
-        <span class="empty-label">— Empty —</span>
-      </div>
-    {/each}
+      {#each { length: emptySlots } as _, i (i)}
+        <div class="vault-slot empty">
+          <span class="empty-label">— Empty Slot —</span>
+        </div>
+      {/each}
+    </div>
   </div>
+
+  {#if unslottedTreasures.length > 0}
+    <div class="inventory-section">
+      <h4 class="section-label">Inventory</h4>
+      <div class="slot-grid">
+        {#each unslottedTreasures as treasure (treasure.id)}
+          <div class="vault-slot inventory {rarityClass[treasure.rarity]}">
+            <span class="treasure-name">{treasure.name}</span>
+            <span class="treasure-rarity">{treasure.rarity}</span>
+            <span class="treasure-effect body-text">{treasure.flavorText}</span>
+            <button
+              class="btn-primary slot-btn"
+              onclick={() => slotTreasure(treasure.id)}
+              disabled={!slotsAvailable}
+            >
+              Slot
+            </button>
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -51,6 +81,19 @@
   }
 
   .slot-count {
+    margin-bottom: 0.75rem;
+  }
+
+  .section-label {
+    color: var(--text-muted, #7a8a74);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0.5rem 0 0.35rem;
+  }
+
+  .slot-section,
+  .inventory-section {
     margin-bottom: 0.75rem;
   }
 
@@ -79,7 +122,8 @@
     text-align: center;
   }
 
-  .vault-slot.occupied {
+  .vault-slot.occupied,
+  .vault-slot.inventory {
     background: rgba(0, 0, 0, 0.25);
   }
 
@@ -122,5 +166,19 @@
 
   .treasure-effect {
     margin-top: 0.1rem;
+  }
+
+  .slot-btn,
+  .unslot-btn {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    font-size: 1rem;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .slot-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 </style>

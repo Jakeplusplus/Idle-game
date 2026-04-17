@@ -15,6 +15,7 @@ import {
   TREASURE_RARITY_WEIGHTS,
   TREASURE_LUCK_WEIGHT_BONUS,
   TREASURE_POOLS,
+  VAULT_SLOTS,
 } from "./configs/treasures.js";
 import { generateFantasyName } from "./names.js";
 
@@ -30,10 +31,21 @@ import type {
   TreasureRarity,
 } from "./types.js";
 
-/** Aggregate all active passive effects (generation + lineage) additively. */
+/** Aggregate all active passive effects: generation + lineage + slotted treasures. */
 function getAllActivePassives(): PassiveEffect[] {
   const passives: PassiveEffect[] = [...game.lineagePassives];
   if (game.activeGenerationPassive) passives.push(game.activeGenerationPassive);
+  for (const t of game.treasureInventory) {
+    if (t.slotted) {
+      passives.push({
+        id: `treasure_${t.id}`,
+        name: t.name,
+        description: t.flavorText,
+        type: t.effectType,
+        magnitude: t.effectMagnitude,
+      });
+    }
+  }
   return passives;
 }
 
@@ -184,6 +196,24 @@ export function clickBurrow() {
     }
   }
   rollTreasureDrop();
+}
+
+export function slotTreasure(id: string) {
+  const treasure = game.treasureInventory.find((t) => t.id === id);
+  if (!treasure || treasure.slotted) return;
+  const slottedCount = game.treasureInventory.filter((t) => t.slotted).length;
+  if (slottedCount >= VAULT_SLOTS) return;
+  game.treasureInventory = game.treasureInventory.map((t) =>
+    t.id === id ? { ...t, slotted: true } : t,
+  );
+}
+
+export function unslotTreasure(id: string) {
+  const treasure = game.treasureInventory.find((t) => t.id === id);
+  if (!treasure || !treasure.slotted) return;
+  game.treasureInventory = game.treasureInventory.map((t) =>
+    t.id === id ? { ...t, slotted: false } : t,
+  );
 }
 
 export function calculateTreasureDropChance(luck: number): number {

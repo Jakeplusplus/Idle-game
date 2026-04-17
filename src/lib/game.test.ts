@@ -15,6 +15,8 @@ import {
   rollSuitorRarity,
   rollTreasureRarity,
   sellOre,
+  slotTreasure,
+  unslotTreasure,
 } from "./game.svelte.js";
 import {
   createDefaultGameState,
@@ -343,6 +345,51 @@ describe("game rules", () => {
 
     expect(game.lineagePassives).toHaveLength(1);
     expect(game.activeGenerationPassive).toEqual(gp);
+  });
+
+  // T-019: slotting mechanic
+  test("slotTreasure activates effect in income calculations", () => {
+    game.minions.pseudodragon = 1;
+    const baseIncome = calculatePassiveIncome();
+
+    game.treasureInventory = [
+      {
+        id: "t_slot",
+        name: "Test Gem",
+        rarity: "Rare",
+        flavorText: "",
+        effectType: "gold_income_pct",
+        effectMagnitude: 0.5,
+        tradeValue: 100,
+        slotted: false,
+      },
+    ];
+
+    slotTreasure("t_slot");
+    expect(game.treasureInventory[0].slotted).toBe(true);
+
+    const boostedIncome = calculatePassiveIncome();
+    expect(boostedIncome).toBeCloseTo(baseIncome * 1.5);
+  });
+
+  test("unslotTreasure removes effect immediately", () => {
+    game.minions.pseudodragon = 1;
+    game.treasureInventory = [
+      {
+        id: "t_unslot",
+        name: "Test Gem",
+        rarity: "Common",
+        flavorText: "",
+        effectType: "gold_income_pct",
+        effectMagnitude: 0.5,
+        tradeValue: 50,
+        slotted: true,
+      },
+    ];
+    const boostedIncome = calculatePassiveIncome();
+    unslotTreasure("t_unslot");
+    const baseIncome = calculatePassiveIncome();
+    expect(baseIncome).toBeLessThan(boostedIncome);
   });
 
   // T-012: treasure drop chance formula
