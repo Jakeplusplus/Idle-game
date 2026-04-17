@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import {
+  acceptSuitor,
   buyOre,
   buyUpgrade,
   calculatePassiveIncome,
@@ -247,6 +248,101 @@ describe("game rules", () => {
     expect(["Common", "Uncommon", "Rare", "Epic", "Legendary"]).toContain(s.rarity);
     expect(s.statPoolSize).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(s.statAllocations)).toBe(true);
+  });
+
+  // T-018: prestige on accept
+  test("acceptSuitor applies stats, sets passives, clears suitor, increments generation", () => {
+    game.gold = 10000;
+    game.generation = 1;
+    const lineagePassive = {
+      id: "lp_test",
+      name: "Test LP",
+      description: "",
+      type: "gold_income_pct" as const,
+      magnitude: 0.1,
+    };
+    const genPassive = {
+      id: "gp_test",
+      name: "Test GP",
+      description: "",
+      type: "ore_income_pct" as const,
+      magnitude: 0.2,
+    };
+    game.pendingSuitor = {
+      id: "test_suitor",
+      name: "Testus",
+      rarity: "Epic",
+      statPoolSize: 2,
+      statAllocations: [
+        { stat: "clickPower", amount: 1 },
+        { stat: "luck", amount: 1 },
+      ],
+      generationPassive: genPassive,
+      lineagePassive,
+    };
+    const priorClickPower = game.stats.clickPower;
+    const priorLuck = game.stats.luck;
+
+    acceptSuitor();
+
+    expect(game.stats.clickPower).toBe(priorClickPower + 1);
+    expect(game.stats.luck).toBe(priorLuck + 1);
+    expect(game.activeGenerationPassive).toEqual(genPassive);
+    expect(game.lineagePassives).toContainEqual(lineagePassive);
+    expect(game.gold).toBe(0); // resetHoard called
+    expect(game.generation).toBe(2);
+    expect(game.pendingSuitor).toBeNull();
+  });
+
+  test("acceptSuitor preserves lineagePassives across multiple accepts (append-only)", () => {
+    game.lineagePassives = [
+      { id: "prior", name: "Prior", description: "", type: "luck_flat", magnitude: 1 },
+    ];
+    game.pendingSuitor = {
+      id: "s2",
+      name: "S2",
+      rarity: "Uncommon",
+      statPoolSize: 1,
+      statAllocations: [{ stat: "beauty", amount: 1 }],
+      generationPassive: null,
+      lineagePassive: {
+        id: "new_lp",
+        name: "New",
+        description: "",
+        type: "beauty_flat",
+        magnitude: 2,
+      },
+    };
+
+    acceptSuitor();
+
+    expect(game.lineagePassives).toHaveLength(2);
+    expect(game.lineagePassives[0].id).toBe("prior");
+    expect(game.lineagePassives[1].id).toBe("new_lp");
+  });
+
+  test("resetHoard does not clear lineagePassives or activeGenerationPassive", () => {
+    const lp = {
+      id: "lp_x",
+      name: "X",
+      description: "",
+      type: "gold_income_pct" as const,
+      magnitude: 0.05,
+    };
+    const gp = {
+      id: "gp_x",
+      name: "Y",
+      description: "",
+      type: "ore_income_pct" as const,
+      magnitude: 0.1,
+    };
+    game.lineagePassives = [lp];
+    game.activeGenerationPassive = gp;
+
+    resetHoard();
+
+    expect(game.lineagePassives).toHaveLength(1);
+    expect(game.activeGenerationPassive).toEqual(gp);
   });
 
   // T-012: treasure drop chance formula

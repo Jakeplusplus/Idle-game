@@ -318,9 +318,31 @@ export function declineSuitor() {
   game.pendingSuitor = null;
 }
 
-// Stub — full prestige logic implemented in T-018.
 export function acceptSuitor() {
+  const suitor = game.pendingSuitor;
+  if (!suitor) return;
+
+  // (1) Apply stat gains exactly as previewed — no additional RNG
+  for (const alloc of suitor.statAllocations) {
+    game.stats[alloc.stat] += alloc.amount;
+  }
+
+  // (2) Replace activeGenerationPassive
+  game.activeGenerationPassive = suitor.generationPassive;
+
+  // (3) Append new lineage passive (if any)
+  if (suitor.lineagePassive) {
+    game.lineagePassives = [...game.lineagePassives, suitor.lineagePassive];
+  }
+
+  // (4) Reset hoard — does NOT clear lineagePassives or activeGenerationPassive
+  resetHoard();
+
+  game.generation += 1;
+  game.dragonName = generateFantasyName("dragon");
   game.pendingSuitor = null;
+
+  saveGame();
 }
 
 export function attractMate() {
