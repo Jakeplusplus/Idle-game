@@ -1,6 +1,6 @@
 ---
 created: "2026-04-15T00:00:00Z"
-last_edited: "2026-04-15T00:00:00Z"
+last_edited: "2026-04-17T00:00:00Z"
 ---
 
 # Cavekit: Treasure System
@@ -19,8 +19,10 @@ Mining ticks and manual burrow clicks have a luck-scaled probability of producin
 
 - [ ] Drop chance formula: `baseTreasureChance * (1 + luck * luckMultiplier)`, all values config-driven
 - [ ] Drops can occur on each miner passive tick and on each manual burrow click
+- [ ] "Each miner passive tick" means once per simulated game second (1 Hz), not once per animation frame — the drop roll must be wrapped in a per-second accumulator in the game loop
 - [ ] Dropped treasures added to `treasureInventory[]` in game state as unslotted (inert)
 - [ ] Unit test: luck=0 vs luck=10 → measurably different drop rate over 1000 ticks
+- [ ] Unit test: run tick() through a 10-second window at 60 fps; assert total drop count is governed by the per-second rate (not per-frame rate)
 
 **Dependencies:** cavekit-save-infrastructure.md R1 (new state fields: `treasureInventory[]` — array of treasure objects, each with id, rarity, name, effectType, effectMagnitude, tradeValue, slotted: boolean)
 
@@ -53,7 +55,7 @@ A new building — the Treasure Vault — must be purchased before any treasure 
 **Acceptance Criteria:**
 
 - [ ] Treasure Vault defined in building config with an unlock cost
-- [ ] Without a purchased Treasure Vault, treasures accumulate in inventory with no effect
+- [ ] Without a purchased Treasure Vault, treasures accumulate in inventory with no effect — this invariant is enforced in code (not only in UI): `getAllActivePassives()` must skip slotted treasures when `!game.buildings.treasure_vault`, and hydration must force `slotted: false` on all inventory items when vault is not owned
 - [ ] Treasure Vault appears in BuildingsTab (Construction section)
 - [ ] Vault UI displays slotted treasures, empty slots, and total slot count
 - [ ] Vault UI uses `.panel` per DESIGN.md Section 4
@@ -124,3 +126,6 @@ Luck stat (currently non-functional) is wired to treasure drop rate and rarity. 
 - See also: cavekit-progression-systems.md (R1 for shared beauty trade multiplier formula)
 
 ## Changelog
+
+- 2026-04-17: Added R1 tick cadence criterion ("each miner passive tick" = 1 Hz, not rAF) — finding F-002; per-frame roll inflated drop rate ~60×
+- 2026-04-17: Strengthened R3 vault ownership invariant to require code-level enforcement (not UI-only) — finding F-004; slotted effects applied without vault via imported save
