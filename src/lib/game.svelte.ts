@@ -96,6 +96,10 @@ export function calculatePassiveIncome() {
   return income;
 }
 
+export function getOreSellPrice(): number {
+  return TRADING.ORE_SELL_PRICE * (1 + game.stats.beauty * TRADING.BEAUTY_TRADE_MULTIPLIER);
+}
+
 export function buyOre(amount: number) {
   if (!isWholePositiveNumber(amount)) return;
   const cost = amount * TRADING.ORE_BUY_PRICE;
@@ -111,7 +115,7 @@ export function buyOre(amount: number) {
 export function sellOre(amount: number) {
   if (!isWholePositiveNumber(amount)) return;
   if (game.ore >= amount) {
-    const gain = amount * TRADING.ORE_SELL_PRICE;
+    const gain = amount * getOreSellPrice();
     game.ore -= amount;
     game.gold += gain;
     if (game.gold + game.ore > game.maxCapacity) {

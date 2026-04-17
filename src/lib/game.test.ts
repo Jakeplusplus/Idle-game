@@ -5,6 +5,7 @@ import {
   calculatePassiveIncome,
   clickBurrow,
   getCurrentCapacityLimit,
+  getOreSellPrice,
   sellOre,
 } from "./game.svelte.js";
 import {
@@ -109,6 +110,15 @@ describe("game rules", () => {
     const income30s = incomePerSec * Math.min(30.0, 1.0);
 
     expect(income1s).toBe(income30s);
+  });
+
+  // T-007: beauty trade multiplier
+  test("getOreSellPrice returns higher price at beauty=10 vs beauty=0", () => {
+    game.stats.beauty = 0;
+    const priceAt0 = getOreSellPrice();
+    game.stats.beauty = 10;
+    const priceAt10 = getOreSellPrice();
+    expect(priceAt10).toBeGreaterThan(priceAt0);
   });
 
   test("trade actions ignore invalid amounts", () => {
