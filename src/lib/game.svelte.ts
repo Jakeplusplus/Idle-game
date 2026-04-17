@@ -288,6 +288,11 @@ export function declineSuitor() {
   game.pendingSuitor = null;
 }
 
+// Stub — full prestige logic implemented in T-018.
+export function acceptSuitor() {
+  game.pendingSuitor = null;
+}
+
 export function attractMate() {
   if (game.gold < 10000) return false;
 
