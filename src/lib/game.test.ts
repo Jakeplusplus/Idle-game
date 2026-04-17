@@ -4,6 +4,8 @@ import {
   buyUpgrade,
   calculatePassiveIncome,
   clickBurrow,
+  declineSuitor,
+  generateSuitor,
   getCurrentCapacityLimit,
   getOreSellPrice,
   getPassiveBonus,
@@ -184,6 +186,64 @@ describe("game rules", () => {
     game.stats.beauty = 10;
     const priceAt10 = getOreSellPrice();
     expect(priceAt10).toBeGreaterThan(priceAt0);
+  });
+
+  // T-009: suitor generation + one-pending gating
+  test("generateSuitor pool size: 10k=1, 40k=2, 90k=3 stat points", () => {
+    game.gold = 10000;
+    generateSuitor();
+    expect(game.pendingSuitor!.statPoolSize).toBe(1);
+
+    declineSuitor();
+    game.gold = 40000;
+    generateSuitor();
+    expect(game.pendingSuitor!.statPoolSize).toBe(2);
+
+    declineSuitor();
+    game.gold = 90000;
+    generateSuitor();
+    expect(game.pendingSuitor!.statPoolSize).toBe(3);
+  });
+
+  test("generateSuitor blocked when one is already pending", () => {
+    game.gold = 10000;
+    generateSuitor();
+    const first = game.pendingSuitor;
+    generateSuitor();
+    expect(game.pendingSuitor).toBe(first);
+  });
+
+  test("generateSuitor blocked when gold < 10000", () => {
+    game.gold = 9999;
+    const result = generateSuitor();
+    expect(result).toBe(false);
+    expect(game.pendingSuitor).toBeNull();
+  });
+
+  test("declineSuitor clears pending suitor", () => {
+    game.gold = 10000;
+    generateSuitor();
+    expect(game.pendingSuitor).not.toBeNull();
+    declineSuitor();
+    expect(game.pendingSuitor).toBeNull();
+  });
+
+  test("generateSuitor stat allocations sum to poolSize", () => {
+    game.gold = 90000;
+    generateSuitor();
+    const total = game.pendingSuitor!.statAllocations.reduce((s, a) => s + a.amount, 0);
+    expect(total).toBe(3);
+  });
+
+  test("generateSuitor stores all fields needed for display", () => {
+    game.gold = 10000;
+    generateSuitor();
+    const s = game.pendingSuitor!;
+    expect(s.id).toBeTruthy();
+    expect(s.name).toBeTruthy();
+    expect(["Common", "Uncommon", "Rare", "Epic", "Legendary"]).toContain(s.rarity);
+    expect(s.statPoolSize).toBeGreaterThanOrEqual(1);
+    expect(Array.isArray(s.statAllocations)).toBe(true);
   });
 
   test("trade actions ignore invalid amounts", () => {

@@ -7,13 +7,15 @@ import { MINIONS } from "./configs/minions.js";
 import { BUILDINGS } from "./configs/buildings.js";
 import { UPGRADES } from "./configs/upgrades.js";
 import { TRADING } from "./configs/trading.js";
+import { SUITOR_RARITY_WEIGHTS } from "./configs/suitors.js";
+import { LINEAGE_PASSIVE_POOLS, GENERATION_PASSIVE_POOLS } from "./configs/passives.js";
 import { generateFantasyName } from "./names.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
 export { game } from "./gameState.svelte.js";
 
-import type { PassiveEffect } from "./types.js";
+import type { PassiveEffect, SuitorRarity, StatAllocation } from "./types.js";
 
 /** Aggregate all active passive effects (generation + lineage) additively. */
 function getAllActivePassives(): PassiveEffect[] {
@@ -182,6 +184,75 @@ export function resetHoard() {
     currentLayerIndex: 0,
   };
   game.maxCapacity = 0;
+}
+
+function rollSuitorRarity(): SuitorRarity {
+  const entries = Object.entries(SUITOR_RARITY_WEIGHTS) as [SuitorRarity, number][];
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  let roll = Math.random() * total;
+  for (const [rarity, weight] of entries) {
+    roll -= weight;
+    if (roll <= 0) return rarity;
+  }
+  return "Common";
+}
+
+function sampleFromPool<T>(pool: T[]): T {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+export function generateSuitor(): boolean {
+  if (game.gold < 10000 || game.pendingSuitor !== null) return false;
+
+  const poolSize = Math.max(1, Math.floor(Math.sqrt(game.gold / 10000)));
+  const rarity = rollSuitorRarity();
+
+  // Distribute stat points across clickPower, luck, beauty — armor excluded
+  const statKeys: Array<StatAllocation["stat"]> = ["clickPower", "luck", "beauty"];
+  const allocMap: Partial<Record<StatAllocation["stat"], number>> = {};
+  for (let i = 0; i < poolSize; i++) {
+    const stat = statKeys[Math.floor(Math.random() * statKeys.length)];
+    allocMap[stat] = (allocMap[stat] ?? 0) + 1;
+  }
+  const statAllocations: StatAllocation[] = (
+    Object.entries(allocMap) as [StatAllocation["stat"], number][]
+  ).map(([stat, amount]) => ({ stat, amount }));
+
+  let generationPassive: PassiveEffect | null = null;
+  let lineagePassive: PassiveEffect | null = null;
+
+  if (rarity === "Uncommon") {
+    lineagePassive = sampleFromPool(LINEAGE_PASSIVE_POOLS.small);
+  } else if (rarity === "Rare") {
+    // 50/50: lineage medium or generation strong
+    if (Math.random() < 0.5) {
+      lineagePassive = sampleFromPool(LINEAGE_PASSIVE_POOLS.medium);
+    } else {
+      generationPassive = sampleFromPool(GENERATION_PASSIVE_POOLS.strong);
+    }
+  } else if (rarity === "Epic") {
+    lineagePassive = sampleFromPool(LINEAGE_PASSIVE_POOLS.strong);
+    generationPassive = sampleFromPool(GENERATION_PASSIVE_POOLS.medium);
+  } else if (rarity === "Legendary") {
+    lineagePassive = sampleFromPool(LINEAGE_PASSIVE_POOLS.strong);
+    generationPassive = sampleFromPool(GENERATION_PASSIVE_POOLS.strong);
+  }
+
+  game.pendingSuitor = {
+    id: `suitor_${Date.now()}`,
+    name: generateFantasyName("dragon"),
+    rarity,
+    statPoolSize: poolSize,
+    statAllocations,
+    generationPassive,
+    lineagePassive,
+  };
+
+  return true;
+}
+
+export function declineSuitor() {
+  game.pendingSuitor = null;
 }
 
 export function attractMate() {
