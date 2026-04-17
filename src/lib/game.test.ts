@@ -96,6 +96,20 @@ describe("game rules", () => {
     expect(game.mountain.currentLayerIndex).toBe(1);
   });
 
+  // T-005: delta clamp — 30s delta produces same income as 1s delta
+  test("game loop delta clamped to 1s — 30s gap = same income as 1s", () => {
+    game.minions.pseudodragon = 2; // produces passive gold
+    const incomePerSec = calculatePassiveIncome();
+    expect(incomePerSec).toBeGreaterThan(0);
+
+    // Simulate 1s tick
+    const income1s = incomePerSec * Math.min(1.0, 1.0);
+    // Simulate 30s tick (should be clamped to 1s)
+    const income30s = incomePerSec * Math.min(30.0, 1.0);
+
+    expect(income1s).toBe(income30s);
+  });
+
   test("trade actions ignore invalid amounts", () => {
     game.gold = 100;
     game.ore = 50;

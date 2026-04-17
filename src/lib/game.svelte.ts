@@ -201,7 +201,8 @@ export function startGameLoop() {
   let saveTimer = 0;
 
   function tick(now: number) {
-    const delta = (now - lastTick) / 1000;
+    const rawDelta = (now - lastTick) / 1000;
+    const delta = Math.min(rawDelta, 1.0);
     lastTick = now;
 
     const totalOrePerSec = calculatePassiveOre();
