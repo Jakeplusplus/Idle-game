@@ -6,6 +6,8 @@ import {
   clickBurrow,
   getCurrentCapacityLimit,
   getOreSellPrice,
+  getPassiveBonus,
+  resetHoard,
   sellOre,
 } from "./game.svelte.js";
 import {
@@ -110,6 +112,45 @@ describe("game rules", () => {
     const income30s = incomePerSec * Math.min(30.0, 1.0);
 
     expect(income1s).toBe(income30s);
+  });
+
+  // T-011: passive state + effect application
+  test("lineage passive gold_income_pct bonus reflected in calculatePassiveIncome", () => {
+    game.minions.pseudodragon = 2;
+    const baseIncome = calculatePassiveIncome();
+
+    game.lineagePassives = [
+      { id: "test_lp", name: "Test", description: "test", type: "gold_income_pct", magnitude: 0.5 },
+    ];
+    const boostedIncome = calculatePassiveIncome();
+
+    expect(boostedIncome).toBeCloseTo(baseIncome * 1.5);
+  });
+
+  test("lineage passives stack additively across multiple breeds", () => {
+    game.minions.pseudodragon = 1;
+    game.lineagePassives = [
+      { id: "lp1", name: "A", description: "", type: "gold_income_pct", magnitude: 0.1 },
+      { id: "lp2", name: "B", description: "", type: "gold_income_pct", magnitude: 0.2 },
+    ];
+    const bonus = getPassiveBonus("gold_income_pct");
+    expect(bonus).toBeCloseTo(0.3);
+  });
+
+  test("lineagePassives not cleared by resetHoard", () => {
+    game.lineagePassives = [
+      { id: "lp_persist", name: "Persist", description: "", type: "luck_flat", magnitude: 2 },
+    ];
+    game.activeGenerationPassive = {
+      id: "gp_persist",
+      name: "GenP",
+      description: "",
+      type: "gold_income_pct",
+      magnitude: 0.1,
+    };
+    resetHoard();
+    expect(game.lineagePassives).toHaveLength(1);
+    expect(game.activeGenerationPassive).not.toBeNull();
   });
 
   // T-008: layer 4-7 upgrade gating

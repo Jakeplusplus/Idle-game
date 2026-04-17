@@ -37,6 +37,9 @@ export type Mountain = {
 export type GameState = {
   saveVersion: number;
   gold: number;
+  // Passives — NOT cleared by resetHoard()
+  activeGenerationPassive: PassiveEffect | null;
+  lineagePassives: PassiveEffect[];
   maxCapacity: number;
   ore: number;
   generation: number;
@@ -47,6 +50,21 @@ export type GameState = {
   buildings: Record<string, boolean>;
   upgrades: Record<string, boolean>;
   lastSaveTime: number;
+};
+
+export type PassiveEffectType =
+  | "gold_income_pct" // adds % multiplier to passive gold income
+  | "ore_income_pct" // adds % multiplier to passive ore income
+  | "click_power_flat" // flat bonus to click power
+  | "luck_flat" // flat bonus to luck
+  | "beauty_flat"; // flat bonus to beauty
+
+export type PassiveEffect = {
+  id: string;
+  name: string;
+  description: string;
+  type: PassiveEffectType;
+  magnitude: number; // pct types: 0.10 = 10%; flat types: absolute value
 };
 
 export type BuildingConfig = {

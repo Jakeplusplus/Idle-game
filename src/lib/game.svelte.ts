@@ -13,6 +13,21 @@ import { generateFantasyName } from "./names.js";
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
 export { game } from "./gameState.svelte.js";
 
+import type { PassiveEffect } from "./types.js";
+
+/** Aggregate all active passive effects (generation + lineage) additively. */
+function getAllActivePassives(): PassiveEffect[] {
+  const passives: PassiveEffect[] = [...game.lineagePassives];
+  if (game.activeGenerationPassive) passives.push(game.activeGenerationPassive);
+  return passives;
+}
+
+export function getPassiveBonus(type: PassiveEffect["type"]): number {
+  return getAllActivePassives()
+    .filter((p) => p.type === type)
+    .reduce((sum, p) => sum + p.magnitude, 0);
+}
+
 export function getCurrentCapacityLimit() {
   let limit = 0; // Base baseline capacity
   for (let i = 0; i <= game.mountain.currentLayerIndex; i++) {
@@ -67,7 +82,7 @@ export function calculatePassiveOre() {
       ore += game.minions[minion.id] * minion.orePerSec;
     }
   }
-  return ore;
+  return ore * (1 + getPassiveBonus("ore_income_pct"));
 }
 
 export function calculatePassiveCapacity() {
@@ -98,8 +113,7 @@ export function calculatePassiveIncome() {
       income += game.minions[minion.id] * minion.goldPerSec;
     }
   }
-
-  return income;
+  return income * (1 + getPassiveBonus("gold_income_pct"));
 }
 
 export function getOreSellPrice(): number {
@@ -130,10 +144,14 @@ export function sellOre(amount: number) {
   }
 }
 
+export function getEffectiveClickPower(): number {
+  return game.stats.clickPower + getPassiveBonus("click_power_flat");
+}
+
 export function clickGold() {
   const total = game.gold + game.ore;
   if (total < game.maxCapacity) {
-    game.gold += game.stats.clickPower;
+    game.gold += getEffectiveClickPower();
     if (game.gold + game.ore > game.maxCapacity) {
       game.gold = game.maxCapacity - game.ore;
     }

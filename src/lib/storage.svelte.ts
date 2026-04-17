@@ -120,6 +120,15 @@ export function hydrateGameState(data: SavedGameData) {
   nextState.upgrades = sanitizeBooleanRecord(data.upgrades);
   nextState.lastSaveTime = sanitizeNumber(data.lastSaveTime, nextState.lastSaveTime);
 
+  // Passives: restore from save or keep defaults (null / [])
+  if (data.activeGenerationPassive && typeof data.activeGenerationPassive === "object") {
+    nextState.activeGenerationPassive =
+      data.activeGenerationPassive as typeof nextState.activeGenerationPassive;
+  }
+  if (Array.isArray(data.lineagePassives)) {
+    nextState.lineagePassives = data.lineagePassives as typeof nextState.lineagePassives;
+  }
+
   return nextState;
 }
 
