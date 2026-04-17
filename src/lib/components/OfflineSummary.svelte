@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { offlineProgress, dismissOfflineProgress } from "$lib/storage.svelte.js";
+  import { offlineProgressState, dismissOfflineProgress } from "$lib/storage.svelte.js";
+
+  const offlineProgress = $derived(offlineProgressState.data);
 
   function formatTime(seconds: number): string {
     const h = Math.floor(seconds / 3600);

@@ -28,11 +28,11 @@ export type OfflineProgressResult = {
   oreEarned: number;
 };
 
-// Reactive: set when loadGame finds meaningful offline time (> 60s capped). Cleared on dismiss.
-export let offlineProgress = $state<OfflineProgressResult | null>(null);
+// Svelte 5: exported $state must only have properties mutated, not reassigned.
+export const offlineProgressState = $state<{ data: OfflineProgressResult | null }>({ data: null });
 
 export function dismissOfflineProgress() {
-  offlineProgress = null;
+  offlineProgressState.data = null;
 }
 
 function sanitizeNumber(value: unknown, fallback: number) {
@@ -185,7 +185,7 @@ export function loadGame() {
             }
           }
 
-          offlineProgress = {
+          offlineProgressState.data = {
             rawSeconds,
             cappedSeconds,
             goldEarned: earnedGold,
