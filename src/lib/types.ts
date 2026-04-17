@@ -2,6 +2,7 @@ export type GameStats = {
   clickPower: number;
   luck: number;
   beauty: number;
+  // Armor activates with the future map system — excluded from suitor stat pool until then.
   armor: number;
 };
 
@@ -34,7 +35,15 @@ export type Mountain = {
 };
 
 export type GameState = {
+  saveVersion: number;
   gold: number;
+  // Passives — NOT cleared by resetHoard()
+  activeGenerationPassive: PassiveEffect | null;
+  lineagePassives: PassiveEffect[];
+  // Suitor system — persists until accepted or declined
+  pendingSuitor: Suitor | null;
+  // Treasure inventory — cleared by resetHoard()
+  treasureInventory: TreasureItem[];
   maxCapacity: number;
   ore: number;
   generation: number;
@@ -45,6 +54,51 @@ export type GameState = {
   buildings: Record<string, boolean>;
   upgrades: Record<string, boolean>;
   lastSaveTime: number;
+};
+
+export type PassiveEffectType =
+  | "gold_income_pct" // adds % multiplier to passive gold income
+  | "ore_income_pct" // adds % multiplier to passive ore income
+  | "click_power_flat" // flat bonus to click power
+  | "luck_flat" // flat bonus to luck
+  | "beauty_flat"; // flat bonus to beauty
+
+export type PassiveEffect = {
+  id: string;
+  name: string;
+  description: string;
+  type: PassiveEffectType;
+  magnitude: number; // pct types: 0.10 = 10%; flat types: absolute value
+};
+
+export type SuitorRarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary";
+
+export type StatAllocation = {
+  stat: Exclude<keyof GameStats, "armor">; // armor excluded from suitor pool
+  amount: number;
+};
+
+export type Suitor = {
+  id: string;
+  name: string;
+  rarity: SuitorRarity;
+  statPoolSize: number;
+  statAllocations: StatAllocation[];
+  generationPassive: PassiveEffect | null;
+  lineagePassive: PassiveEffect | null;
+};
+
+export type TreasureRarity = "Common" | "Uncommon" | "Rare" | "Legendary";
+
+export type TreasureItem = {
+  id: string;
+  name: string;
+  rarity: TreasureRarity;
+  flavorText: string;
+  effectType: PassiveEffectType;
+  effectMagnitude: number;
+  tradeValue: number;
+  slotted: boolean;
 };
 
 export type BuildingConfig = {

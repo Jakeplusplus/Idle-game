@@ -32,6 +32,18 @@
   --pine-rgb: 151, 186, 142;
   --font-pixel: "VT323", monospace;
   --font-display: "Press Start 2P", monospace;
+  /* DESIGN.md Section 2 — canonical design tokens */
+  --bg-base: #0d110e;
+  --bg-surface: #161d17;
+  --bg-elevated: #1f2b20;
+  --text-primary: #e8dfc0;
+  --text-secondary: #9ba88a;
+  --forest: #4a7c59;
+  --stream: #5a9ebc;
+  --earth: #7a5c3a;
+  --ember: #c25b5b;
+  --gold: #f5c842;
+  --gold-deep: #b8963a;
 }
 
 *,
@@ -109,6 +121,24 @@ dialog:focus-visible {
 button:active {
   transform: translate(2px, 2px);
   box-shadow: 0px 0px 0px var(--shadow-color);
+}
+
+.btn-primary {
+  background: #f5c842;
+  color: #0d110e;
+  border: none;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.btn-primary:hover {
+  background: #b8963a;
+}
+
+.btn-secondary {
+  background: #1f2b20;
+  color: #e8dfc0;
+  border: 1px solid #7a5c3a;
+  box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
 .panel {

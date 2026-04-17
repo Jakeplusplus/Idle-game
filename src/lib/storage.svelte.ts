@@ -1,5 +1,10 @@
 import { browser } from "$app/environment";
-import { createDefaultGameState, game, replaceGameState } from "./gameState.svelte.js";
+import {
+  createDefaultGameState,
+  game,
+  replaceGameState,
+  SAVE_VERSION,
+} from "./gameState.svelte.js";
 import {
   calculatePassiveIncome,
   calculatePassiveOre,
@@ -10,10 +15,25 @@ import {
 import type { GameState } from "./types.js";
 
 const SAVE_KEY = "dragon_hoard_save";
+const OFFLINE_CAP_SECONDS = 8 * 3600;
 
 export type SavedGameData = Partial<GameState> & {
   maxGoldCapacity?: number;
 };
+
+export type OfflineProgressResult = {
+  rawSeconds: number;
+  cappedSeconds: number;
+  goldEarned: number;
+  oreEarned: number;
+};
+
+// Svelte 5: exported $state must only have properties mutated, not reassigned.
+export const offlineProgressState = $state<{ data: OfflineProgressResult | null }>({ data: null });
+
+export function dismissOfflineProgress() {
+  offlineProgressState.data = null;
+}
 
 function sanitizeNumber(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -33,6 +53,9 @@ function sanitizeBooleanRecord(value: unknown) {
 export function hydrateGameState(data: SavedGameData) {
   const nextState = createDefaultGameState();
   const maxCapacity = data.maxCapacity ?? data.maxGoldCapacity;
+
+  // Normalize version: missing or mismatched version fills all new fields from defaults.
+  nextState.saveVersion = SAVE_VERSION;
 
   nextState.gold = sanitizeNumber(data.gold, nextState.gold);
   nextState.maxCapacity = sanitizeNumber(maxCapacity, nextState.maxCapacity);
@@ -97,6 +120,23 @@ export function hydrateGameState(data: SavedGameData) {
   nextState.upgrades = sanitizeBooleanRecord(data.upgrades);
   nextState.lastSaveTime = sanitizeNumber(data.lastSaveTime, nextState.lastSaveTime);
 
+  // Passives: restore from save or keep defaults (null / [])
+  if (data.activeGenerationPassive && typeof data.activeGenerationPassive === "object") {
+    nextState.activeGenerationPassive =
+      data.activeGenerationPassive as typeof nextState.activeGenerationPassive;
+  }
+  if (Array.isArray(data.lineagePassives)) {
+    nextState.lineagePassives = data.lineagePassives as typeof nextState.lineagePassives;
+  }
+  // Pending suitor persists across saves
+  if (data.pendingSuitor && typeof data.pendingSuitor === "object") {
+    nextState.pendingSuitor = data.pendingSuitor as typeof nextState.pendingSuitor;
+  }
+  // Treasure inventory persists (cleared only by resetHoard/prestige)
+  if (Array.isArray(data.treasureInventory)) {
+    nextState.treasureInventory = data.treasureInventory as typeof nextState.treasureInventory;
+  }
+
   return nextState;
 }
 
@@ -115,11 +155,12 @@ export function loadGame() {
       replaceGameState(data);
 
       // Offline Progress Calculation
-      const timeDiffSeconds = (Date.now() - game.lastSaveTime) / 1000;
-      if (timeDiffSeconds > 60) {
-        const earnedGold = calculatePassiveIncome() * timeDiffSeconds;
-        const earnedOre = calculatePassiveOre() * timeDiffSeconds;
-        const earnedCapacity = calculatePassiveCapacity() * timeDiffSeconds;
+      const rawSeconds = (Date.now() - game.lastSaveTime) / 1000;
+      const cappedSeconds = Math.min(rawSeconds, OFFLINE_CAP_SECONDS);
+      if (cappedSeconds > 60) {
+        const earnedGold = calculatePassiveIncome() * cappedSeconds;
+        const earnedOre = calculatePassiveOre() * cappedSeconds;
+        const earnedCapacity = calculatePassiveCapacity() * cappedSeconds;
 
         if (earnedGold > 0 || earnedOre > 0) {
           // Offline capacity mining
@@ -144,9 +185,12 @@ export function loadGame() {
             }
           }
 
-          console.log(
-            `Welcome back! You earned ${Math.floor(earnedGold)} gold and ${Math.floor(earnedOre)} ore while away.`,
-          );
+          offlineProgressState.data = {
+            rawSeconds,
+            cappedSeconds,
+            goldEarned: earnedGold,
+            oreEarned: earnedOre,
+          };
         }
       }
     } catch (e) {

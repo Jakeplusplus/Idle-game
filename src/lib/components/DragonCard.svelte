@@ -1,5 +1,8 @@
 <script lang="ts">
   import { game } from "$lib/game.svelte.js";
+
+  // Armor stat activates with the future map system — hidden until then.
+  const MAP_SYSTEM_ACTIVE = false;
 </script>
 
 <div class="panel dragon-card forest-panel">
@@ -19,7 +22,7 @@
       <strong>{game.stats.clickPower}</strong>
       <span class="status-label">Power</span>
     </div>
-    <div class="status-chip">
+    <div class="status-chip" title="Affects treasure find rate and rarity">
       <svg class="stat-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
         <path d="M8,1 L10,6 L15,8 L10,10 L8,15 L6,10 L1,8 L6,6 Z"/>
       </svg>
@@ -34,6 +37,7 @@
       <strong>{game.stats.beauty}</strong>
       <span class="status-label">Beauty</span>
     </div>
+    {#if MAP_SYSTEM_ACTIVE}
     <div class="status-chip">
       <svg class="stat-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
         <path d="M2,2 L14,2 L14,9 L8,15 L2,9 Z"/>
@@ -41,6 +45,7 @@
       <strong>{game.stats.armor}</strong>
       <span class="status-label">Armor</span>
     </div>
+    {/if}
   </div>
 </div>
 

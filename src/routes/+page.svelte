@@ -3,6 +3,7 @@
   import { startGameLoop } from "$lib/game.svelte.js";
 
   import AppHeader from "$lib/components/AppHeader.svelte";
+  import OfflineSummary from "$lib/components/OfflineSummary.svelte";
   import DragonCard from "$lib/components/DragonCard.svelte";
   import HoardDisplay from "$lib/components/HoardDisplay.svelte";
   import BroodTab from "$lib/components/tabs/BroodTab.svelte";
@@ -34,6 +35,7 @@
   }
 </script>
 
+<OfflineSummary />
 <AppHeader />
 
 <div class="app-body">

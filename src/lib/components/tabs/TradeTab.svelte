@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { game, buyOre, sellOre } from "$lib/game.svelte.js";
+  import { game, buyOre, sellOre, getOreSellPrice } from "$lib/game.svelte.js";
   import { TRADING } from "$lib/configs/trading.js";
 
   let tradeDialog: HTMLDialogElement | undefined = $state();
@@ -78,7 +78,10 @@
     <div class="trade-col">
       <h4 class="trade-col-label">Sell Ore</h4>
       <div class="trade-price-tag">
-        1 ore sells for {TRADING.ORE_SELL_PRICE} gold
+        1 ore sells for {getOreSellPrice().toFixed(2)} gold
+        {#if game.stats.beauty > 1}
+          <span class="beauty-bonus">(+{((game.stats.beauty * TRADING.BEAUTY_TRADE_MULTIPLIER) * 100).toFixed(0)}% beauty)</span>
+        {/if}
       </div>
       <button onclick={() => sellOre(1)} disabled={game.ore < 1}>
         Sell One
@@ -106,7 +109,7 @@
   <p style="margin-bottom: 0.3125rem;">
     {tradeMode === "buy"
       ? `(Cost: ${TRADING.ORE_BUY_PRICE} Gold per Ore)`
-      : `(Gain: ${TRADING.ORE_SELL_PRICE} Gold per Ore)`}
+      : `(Gain: ${getOreSellPrice().toFixed(2)} Gold per Ore)`}
   </p>
   <div
     style="display: flex; gap: 0.625rem; align-items: center; justify-content: center; margin-bottom: 1.25rem;"
@@ -166,6 +169,10 @@
   .trade-price-tag {
     color: #cfe0df;
     font-size: 1rem;
+  }
+  .beauty-bonus {
+    color: #f5c842;
+    font-size: 0.9rem;
   }
   dialog {
     min-width: 18.75rem;
