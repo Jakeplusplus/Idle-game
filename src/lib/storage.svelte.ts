@@ -15,10 +15,25 @@ import {
 import type { GameState } from "./types.js";
 
 const SAVE_KEY = "dragon_hoard_save";
+const OFFLINE_CAP_SECONDS = 8 * 3600;
 
 export type SavedGameData = Partial<GameState> & {
   maxGoldCapacity?: number;
 };
+
+export type OfflineProgressResult = {
+  rawSeconds: number;
+  cappedSeconds: number;
+  goldEarned: number;
+  oreEarned: number;
+};
+
+// Reactive: set when loadGame finds meaningful offline time (> 60s capped). Cleared on dismiss.
+export let offlineProgress = $state<OfflineProgressResult | null>(null);
+
+export function dismissOfflineProgress() {
+  offlineProgress = null;
+}
 
 function sanitizeNumber(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -123,11 +138,12 @@ export function loadGame() {
       replaceGameState(data);
 
       // Offline Progress Calculation
-      const timeDiffSeconds = (Date.now() - game.lastSaveTime) / 1000;
-      if (timeDiffSeconds > 60) {
-        const earnedGold = calculatePassiveIncome() * timeDiffSeconds;
-        const earnedOre = calculatePassiveOre() * timeDiffSeconds;
-        const earnedCapacity = calculatePassiveCapacity() * timeDiffSeconds;
+      const rawSeconds = (Date.now() - game.lastSaveTime) / 1000;
+      const cappedSeconds = Math.min(rawSeconds, OFFLINE_CAP_SECONDS);
+      if (cappedSeconds > 60) {
+        const earnedGold = calculatePassiveIncome() * cappedSeconds;
+        const earnedOre = calculatePassiveOre() * cappedSeconds;
+        const earnedCapacity = calculatePassiveCapacity() * cappedSeconds;
 
         if (earnedGold > 0 || earnedOre > 0) {
           // Offline capacity mining
@@ -152,9 +168,12 @@ export function loadGame() {
             }
           }
 
-          console.log(
-            `Welcome back! You earned ${Math.floor(earnedGold)} gold and ${Math.floor(earnedOre)} ore while away.`,
-          );
+          offlineProgress = {
+            rawSeconds,
+            cappedSeconds,
+            goldEarned: earnedGold,
+            oreEarned: earnedOre,
+          };
         }
       }
     } catch (e) {
