@@ -349,6 +349,21 @@ describe("game rules", () => {
     expect(game.activeGenerationPassive).toEqual(gp);
   });
 
+  // T-021: luck stat wiring
+  test("luck drives both drop chance and rarity distribution", () => {
+    const dropAt0 = calculateTreasureDropChance(0);
+    const dropAt10 = calculateTreasureDropChance(10);
+    expect(dropAt10).toBeGreaterThan(dropAt0);
+
+    let commonAt0 = 0;
+    let commonAt10 = 0;
+    for (let i = 0; i < 100; i++) {
+      if (rollTreasureRarity(0) === "Common") commonAt0++;
+      if (rollTreasureRarity(10) === "Common") commonAt10++;
+    }
+    expect(commonAt10).toBeLessThan(commonAt0);
+  });
+
   // T-020: treasure sell with beauty multiplier
   test("getTreasureSellPrice returns higher price at beauty=10 vs beauty=0", () => {
     game.stats.beauty = 0;
