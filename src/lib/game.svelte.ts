@@ -9,14 +9,26 @@ import { UPGRADES } from "./configs/upgrades.js";
 import { TRADING } from "./configs/trading.js";
 import { SUITOR_RARITY_WEIGHTS, SUITOR_BEAUTY_WEIGHT_BONUS } from "./configs/suitors.js";
 import { LINEAGE_PASSIVE_POOLS, GENERATION_PASSIVE_POOLS } from "./configs/passives.js";
-import { BASE_TREASURE_CHANCE, LUCK_MULTIPLIER } from "./configs/treasures.js";
+import {
+  BASE_TREASURE_CHANCE,
+  LUCK_MULTIPLIER,
+  TREASURE_RARITY_WEIGHTS,
+  TREASURE_LUCK_WEIGHT_BONUS,
+  TREASURE_POOLS,
+} from "./configs/treasures.js";
 import { generateFantasyName } from "./names.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
 export { game } from "./gameState.svelte.js";
 
-import type { PassiveEffect, SuitorRarity, StatAllocation, TreasureItem } from "./types.js";
+import type {
+  PassiveEffect,
+  SuitorRarity,
+  StatAllocation,
+  TreasureItem,
+  TreasureRarity,
+} from "./types.js";
 
 /** Aggregate all active passive effects (generation + lineage) additively. */
 function getAllActivePassives(): PassiveEffect[] {
@@ -178,16 +190,34 @@ export function calculateTreasureDropChance(luck: number): number {
   return BASE_TREASURE_CHANCE * (1 + luck * LUCK_MULTIPLIER);
 }
 
-// Generates a placeholder Common treasure. T-013 replaces with config-driven definitions + rarity.
+export function rollTreasureRarity(luck: number): TreasureRarity {
+  const bonus = luck * TREASURE_LUCK_WEIGHT_BONUS;
+  const entries = Object.entries(TREASURE_RARITY_WEIGHTS) as [TreasureRarity, number][];
+  const adjusted = entries.map(([rarity, w]) => ({
+    rarity,
+    weight: rarity === "Common" ? Math.max(0, w - bonus * (entries.length - 1)) : w + bonus,
+  }));
+  const total = adjusted.reduce((s, e) => s + e.weight, 0);
+  let roll = Math.random() * total;
+  for (const { rarity, weight } of adjusted) {
+    roll -= weight;
+    if (roll <= 0) return rarity;
+  }
+  return "Common";
+}
+
 function generateTreasureItem(): TreasureItem {
+  const rarity = rollTreasureRarity(game.stats.luck);
+  const pool = TREASURE_POOLS[rarity];
+  const def = pool[Math.floor(Math.random() * pool.length)];
   return {
     id: `treasure_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-    name: "Rough Gemstone",
-    rarity: "Common",
-    flavorText: "A dull stone with a faint shimmer.",
-    effectType: "gold_income_pct",
-    effectMagnitude: 0.02,
-    tradeValue: 50,
+    name: def.name,
+    rarity: def.rarity,
+    flavorText: def.flavorText,
+    effectType: def.effectType,
+    effectMagnitude: def.effectMagnitude,
+    tradeValue: def.tradeValue,
     slotted: false,
   };
 }

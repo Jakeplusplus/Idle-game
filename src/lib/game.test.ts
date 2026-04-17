@@ -12,6 +12,7 @@ import {
   getPassiveBonus,
   resetHoard,
   rollSuitorRarity,
+  rollTreasureRarity,
   sellOre,
 } from "./game.svelte.js";
 import {
@@ -270,6 +271,17 @@ describe("game rules", () => {
     ];
     resetHoard();
     expect(game.treasureInventory).toHaveLength(0);
+  });
+
+  // T-013: treasure rarity tiers + luck weighting
+  test("luck=10 produces fewer Common treasures than luck=0 over 100 rolls", () => {
+    let commonAt0 = 0;
+    let commonAt10 = 0;
+    for (let i = 0; i < 100; i++) {
+      if (rollTreasureRarity(0) === "Common") commonAt0++;
+      if (rollTreasureRarity(10) === "Common") commonAt10++;
+    }
+    expect(commonAt10).toBeLessThan(commonAt0);
   });
 
   // T-010: beauty-weighted rarity roll
