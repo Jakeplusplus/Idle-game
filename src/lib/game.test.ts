@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import {
   buyOre,
   buyUpgrade,
+  calculatePassiveIncome,
   clickBurrow,
   getCurrentCapacityLimit,
   sellOre,
