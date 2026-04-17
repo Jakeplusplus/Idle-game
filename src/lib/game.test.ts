@@ -10,6 +10,7 @@ import {
   getOreSellPrice,
   getPassiveBonus,
   resetHoard,
+  rollSuitorRarity,
   sellOre,
 } from "./game.svelte.js";
 import {
@@ -244,6 +245,17 @@ describe("game rules", () => {
     expect(["Common", "Uncommon", "Rare", "Epic", "Legendary"]).toContain(s.rarity);
     expect(s.statPoolSize).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(s.statAllocations)).toBe(true);
+  });
+
+  // T-010: beauty-weighted rarity roll
+  test("beauty=20 produces fewer Common suitors than beauty=0 over 100 rolls", () => {
+    let commonAt0 = 0;
+    let commonAt20 = 0;
+    for (let i = 0; i < 100; i++) {
+      if (rollSuitorRarity(0) === "Common") commonAt0++;
+      if (rollSuitorRarity(20) === "Common") commonAt20++;
+    }
+    expect(commonAt20).toBeLessThan(commonAt0);
   });
 
   test("trade actions ignore invalid amounts", () => {

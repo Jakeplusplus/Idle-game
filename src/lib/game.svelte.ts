@@ -7,7 +7,7 @@ import { MINIONS } from "./configs/minions.js";
 import { BUILDINGS } from "./configs/buildings.js";
 import { UPGRADES } from "./configs/upgrades.js";
 import { TRADING } from "./configs/trading.js";
-import { SUITOR_RARITY_WEIGHTS } from "./configs/suitors.js";
+import { SUITOR_RARITY_WEIGHTS, SUITOR_BEAUTY_WEIGHT_BONUS } from "./configs/suitors.js";
 import { LINEAGE_PASSIVE_POOLS, GENERATION_PASSIVE_POOLS } from "./configs/passives.js";
 import { generateFantasyName } from "./names.js";
 
@@ -186,11 +186,17 @@ export function resetHoard() {
   game.maxCapacity = 0;
 }
 
-function rollSuitorRarity(): SuitorRarity {
+export function rollSuitorRarity(beauty: number): SuitorRarity {
+  const bonus = beauty * SUITOR_BEAUTY_WEIGHT_BONUS;
   const entries = Object.entries(SUITOR_RARITY_WEIGHTS) as [SuitorRarity, number][];
-  const total = entries.reduce((s, [, w]) => s + w, 0);
+  // Each non-Common tier gains `bonus` weight; Common weight is reduced by total bonus added.
+  const adjusted = entries.map(([rarity, w]) => ({
+    rarity,
+    weight: rarity === "Common" ? Math.max(0, w - bonus * (entries.length - 1)) : w + bonus,
+  }));
+  const total = adjusted.reduce((s, e) => s + e.weight, 0);
   let roll = Math.random() * total;
-  for (const [rarity, weight] of entries) {
+  for (const { rarity, weight } of adjusted) {
     roll -= weight;
     if (roll <= 0) return rarity;
   }
@@ -205,7 +211,7 @@ export function generateSuitor(): boolean {
   if (game.gold < 10000 || game.pendingSuitor !== null) return false;
 
   const poolSize = Math.max(1, Math.floor(Math.sqrt(game.gold / 10000)));
-  const rarity = rollSuitorRarity();
+  const rarity = rollSuitorRarity(game.stats.beauty);
 
   // Distribute stat points across clickPower, luck, beauty — armor excluded
   const statKeys: Array<StatAllocation["stat"]> = ["clickPower", "luck", "beauty"];
