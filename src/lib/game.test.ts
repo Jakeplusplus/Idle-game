@@ -112,6 +112,30 @@ describe("game rules", () => {
     expect(income1s).toBe(income30s);
   });
 
+  // T-008: layer 4-7 upgrade gating
+  test("purchasing mithril_alloy advances currentLayerIndex to 4 when layer 3 is current", () => {
+    game.ore = 20000;
+    game.buildings.blacksmith = true;
+    game.mountain.currentLayerIndex = 3;
+
+    buyUpgrade("mithril_alloy");
+
+    expect(game.upgrades.mithril_alloy).toBe(true);
+    expect(game.mountain.currentLayerIndex).toBe(4);
+    expect(game.ore).toBe(8000); // 20000 - 12000
+  });
+
+  test("layer 5 upgrade blocked when layer 4 not yet unlocked", () => {
+    game.ore = 50000;
+    game.buildings.blacksmith = true;
+    game.mountain.currentLayerIndex = 2; // Layer 4 requires 3, layer 5 requires 4
+
+    buyUpgrade("dragonite_forging");
+
+    expect(game.upgrades.dragonite_forging).toBeUndefined();
+    expect(game.ore).toBe(50000);
+  });
+
   // T-007: beauty trade multiplier
   test("getOreSellPrice returns higher price at beauty=10 vs beauty=0", () => {
     game.stats.beauty = 0;

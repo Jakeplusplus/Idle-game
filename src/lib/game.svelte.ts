@@ -42,16 +42,22 @@ export function buyUpgrade(id: string) {
   ) {
     return;
   }
+
+  // Sequential gating for layer unlocks: layer N requires currentLayerIndex >= N-1.
+  const layerMatch = upgrade.effect.match(/^unlock_layer_(\d+)$/);
+  if (layerMatch) {
+    const targetLayer = parseInt(layerMatch[1], 10);
+    if (game.mountain.currentLayerIndex < targetLayer - 1) return;
+    game.ore -= upgrade.oreCost;
+    game.upgrades[id] = true;
+    if (game.mountain.currentLayerIndex < targetLayer) {
+      game.mountain.currentLayerIndex = targetLayer;
+    }
+    return;
+  }
+
   game.ore -= upgrade.oreCost;
   game.upgrades[id] = true;
-
-  if (upgrade.effect === "unlock_layer_1" && game.mountain.currentLayerIndex < 1) {
-    game.mountain.currentLayerIndex = 1;
-  } else if (upgrade.effect === "unlock_layer_2" && game.mountain.currentLayerIndex < 2) {
-    game.mountain.currentLayerIndex = 2;
-  } else if (upgrade.effect === "unlock_layer_3" && game.mountain.currentLayerIndex < 3) {
-    game.mountain.currentLayerIndex = 3;
-  }
 }
 
 export function calculatePassiveOre() {

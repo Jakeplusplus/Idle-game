@@ -27,6 +27,38 @@ export const UPGRADES: UpgradeConfig[] = [
     effect: "unlock_layer_3",
     description: "Precision alloys allow Kobolds to bore safely into the Slate Stratum.",
   },
+  {
+    id: "mithril_alloy",
+    buildingId: "blacksmith",
+    name: "Mithril Alloy",
+    oreCost: 12000,
+    effect: "unlock_layer_4",
+    description: "Lightweight mithril-tipped tools slice through Limestone without fatigue.",
+  },
+  {
+    id: "dragonite_forging",
+    buildingId: "blacksmith",
+    name: "Dragonite Forging",
+    oreCost: 40000,
+    effect: "unlock_layer_5",
+    description: "Dragonfire-tempered drills bite into solid Granite with ease.",
+  },
+  {
+    id: "volcanic_boring",
+    buildingId: "blacksmith",
+    name: "Volcanic Boring",
+    oreCost: 120000,
+    effect: "unlock_layer_6",
+    description: "Magma-channeling bore heads cut through dense Basalt formations.",
+  },
+  {
+    id: "obsidian_shattering",
+    buildingId: "blacksmith",
+    name: "Obsidian Shattering",
+    oreCost: 350000,
+    effect: "unlock_layer_7",
+    description: "Resonance fracturing cracks the deepest Obsidian seam in the mountain's core.",
+  },
 
   // Invention Lab (Engineering -> Excavation Rate Multipliers)
   {
