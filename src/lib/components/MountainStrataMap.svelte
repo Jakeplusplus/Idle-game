@@ -1,6 +1,7 @@
 <script lang="ts">
   import { game } from "$lib/game.svelte.js";
   import { MOUNTAIN_LAYERS } from "$lib/configs/mountain.js";
+  import { UPGRADES } from "$lib/configs/upgrades.js";
 
   const mountainMap = $derived.by(() => {
     let currentTotalLimit = 0; // Offset visual boundaries beyond natural max baseline
@@ -17,6 +18,8 @@
 
       currentTotalLimit = endPoint;
 
+      const unlockUpgrade = UPGRADES.find((u) => u.effect === `unlock_layer_${index}`);
+
       return {
         ...layer,
         index,
@@ -28,6 +31,7 @@
           100,
           (excavatedInLayer / layer.maxCapacity) * 100,
         ),
+        oreCost: unlockUpgrade?.oreCost ?? null,
       };
     });
   });
@@ -57,7 +61,7 @@
         ></div>
         <div class="stratum-content">
           {#if stratum.unlocked}
-            <strong>{stratum.name}</strong>
+            <strong class="layer-name">{stratum.name}</strong>
             <span class="stratum-stats">
               Excavated: {Math.floor(stratum.excavated)} / {stratum.maxCapacity}
               <span style="opacity:0.6; margin-left:0.625rem;"
@@ -66,6 +70,9 @@
             </span>
           {:else}
             <strong class="obscured">??? UNEXPLORED BEDROCK ???</strong>
+            {#if stratum.oreCost !== null}
+              <span class="ore-req">Requires {stratum.oreCost} ore</span>
+            {/if}
           {/if}
         </div>
       </div>
@@ -96,7 +103,7 @@
     box-shadow: 0 0 0 1px rgba(var(--wood-rgb), 0.08) inset;
   }
   .stratum.locked {
-    background: var(--bg-color);
+    background: var(--bg-surface, #161d17);
     border-color: #384038;
   }
   .stratum-fill {
@@ -126,9 +133,15 @@
     font-size: 1rem;
     color: var(--text-main);
   }
+  .layer-name {
+    color: var(--text-primary, #e8dfc0);
+  }
   .obscured {
-    color: var(--text-muted);
-    margin: 0 auto;
+    color: var(--text-muted, #7a8a74);
     letter-spacing: 2px;
+  }
+  .ore-req {
+    color: var(--text-muted, #7a8a74);
+    font-size: 0.95rem;
   }
 </style>

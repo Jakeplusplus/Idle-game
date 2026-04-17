@@ -32,6 +32,18 @@
   --pine-rgb: 151, 186, 142;
   --font-pixel: "VT323", monospace;
   --font-display: "Press Start 2P", monospace;
+  /* DESIGN.md Section 2 — canonical design tokens */
+  --bg-base: #0d110e;
+  --bg-surface: #161d17;
+  --bg-elevated: #1f2b20;
+  --text-primary: #e8dfc0;
+  --text-secondary: #9ba88a;
+  --forest: #4a7c59;
+  --stream: #5a9ebc;
+  --earth: #7a5c3a;
+  --ember: #c25b5b;
+  --gold: #f5c842;
+  --gold-deep: #b8963a;
 }
 
 *,
