@@ -14,17 +14,17 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.55.0",
+    "@sveltejs/kit": "^2.57.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
-    "playwright": "^1.58.2",
-    "svelte": "^5.55.1",
-    "svelte-check": "^4.4.5",
+    "playwright": "^1.59.1",
+    "svelte": "^5.55.4",
+    "svelte-check": "^4.4.6",
     "typescript": "^5.9.3",
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.14",
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.18",
     "vite-plugin-devtools-json": "^1.0.0",
     "vite-plus": "catalog:",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.14",
-    "vitest-browser-svelte": "^2.1.0"
+    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.18",
+    "vitest-browser-svelte": "^2.1.1"
   },
   "packageManager": "pnpm@10.33.0"
 }
