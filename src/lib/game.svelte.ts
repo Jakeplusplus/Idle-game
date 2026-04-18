@@ -18,6 +18,7 @@ import {
   VAULT_SLOTS,
 } from "./configs/treasures.js";
 import { generateFantasyName } from "./names.js";
+import { clampPassiveIncome } from "./income.js";
 
 // Re-export storage/store items so +page.svelte imports don't heavily break natively
 export { exportSave, importSave, hardReset } from "./storage.svelte.js";
@@ -416,17 +417,11 @@ export function applyPassiveIncome(seconds: number) {
     if (game.maxCapacity > capacityLimit) game.maxCapacity = capacityLimit;
   }
 
-  const earnedOre = calculatePassiveOre() * seconds;
-  if (earnedOre > 0 && game.gold + game.ore < game.maxCapacity) {
-    game.ore += earnedOre;
-    if (game.gold + game.ore > game.maxCapacity) game.ore = game.maxCapacity - game.gold;
-  }
-
   const earnedGold = calculatePassiveIncome() * seconds;
-  if (earnedGold > 0 && game.gold + game.ore < game.maxCapacity) {
-    game.gold += earnedGold;
-    if (game.gold + game.ore > game.maxCapacity) game.gold = game.maxCapacity - game.ore;
-  }
+  const earnedOre = calculatePassiveOre() * seconds;
+  const applied = clampPassiveIncome(earnedGold, earnedOre, game.gold, game.ore, game.maxCapacity);
+  game.gold += applied.gold;
+  game.ore += applied.ore;
 }
 
 let loopStarted = false;
@@ -447,20 +442,13 @@ export function startGameLoop() {
 
     const totalOrePerSec = calculatePassiveOre();
     const totalCapacityPerSec = calculatePassiveCapacity();
+    const incomePerSec = calculatePassiveIncome();
 
     const capacityLimit = getCurrentCapacityLimit();
     if (game.maxCapacity < capacityLimit && totalCapacityPerSec > 0) {
       game.maxCapacity += totalCapacityPerSec * delta;
       if (game.maxCapacity > capacityLimit) {
         game.maxCapacity = capacityLimit;
-      }
-    }
-
-    const totalResources = game.gold + game.ore;
-    if (totalOrePerSec > 0 && totalResources < game.maxCapacity) {
-      game.ore += totalOrePerSec * delta;
-      if (game.gold + game.ore > game.maxCapacity) {
-        game.ore = game.maxCapacity - game.gold;
       }
     }
 
@@ -473,14 +461,11 @@ export function startGameLoop() {
       }
     }
 
-    const incomePerSec = calculatePassiveIncome();
-    const currentTotal = game.gold + game.ore;
-    if (incomePerSec > 0 && currentTotal < game.maxCapacity) {
-      game.gold += incomePerSec * delta;
-      if (game.gold + game.ore > game.maxCapacity) {
-        game.gold = game.maxCapacity - game.ore;
-      }
-    }
+    const tickGold = incomePerSec * delta;
+    const tickOre = totalOrePerSec * delta;
+    const applied = clampPassiveIncome(tickGold, tickOre, game.gold, game.ore, game.maxCapacity);
+    game.gold += applied.gold;
+    game.ore += applied.ore;
 
     saveTimer += delta;
     if (saveTimer >= 5) {

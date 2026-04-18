@@ -11,6 +11,7 @@ import {
   calculatePassiveCapacity,
   getCurrentCapacityLimit,
 } from "./game.svelte.js";
+import { clampPassiveIncome } from "./income.js";
 import type { GameState } from "./types.js";
 
 const SAVE_KEY = "dragon_hoard_save";
@@ -177,25 +178,21 @@ export function loadGame() {
           }
         }
 
-        if (earnedGold > 0 || earnedOre > 0) {
-          game.gold += earnedGold;
-          game.ore += earnedOre;
-
-          if (game.gold + game.ore > game.maxCapacity) {
-            if (game.ore > game.maxCapacity) {
-              game.ore = game.maxCapacity;
-              game.gold = 0;
-            } else {
-              game.gold = game.maxCapacity - game.ore;
-            }
-          }
-        }
+        const applied = clampPassiveIncome(
+          earnedGold,
+          earnedOre,
+          game.gold,
+          game.ore,
+          game.maxCapacity,
+        );
+        game.gold += applied.gold;
+        game.ore += applied.ore;
 
         offlineProgressState.data = {
           rawSeconds,
           cappedSeconds,
-          goldEarned: earnedGold,
-          oreEarned: earnedOre,
+          goldEarned: applied.gold,
+          oreEarned: applied.ore,
         };
       }
     } catch (e) {

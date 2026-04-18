@@ -415,6 +415,7 @@ describe("game rules", () => {
   // T-019: slotting mechanic
   test("slotTreasure activates effect in income calculations", () => {
     game.minions.pseudodragon = 1;
+    game.buildings.treasure_vault = true;
     const baseIncome = calculatePassiveIncome();
 
     game.treasureInventory = [
@@ -439,6 +440,7 @@ describe("game rules", () => {
 
   test("unslotTreasure removes effect immediately", () => {
     game.minions.pseudodragon = 1;
+    game.buildings.treasure_vault = true;
     game.treasureInventory = [
       {
         id: "t_unslot",
@@ -581,6 +583,39 @@ describe("game rules", () => {
     game.gold = 0;
     applyPassiveIncome(eightHours); // applying the cap directly
     expect(game.gold).toBeCloseTo(goldAt8h, 1);
+  });
+
+  // T-003: applyPassiveIncome proportional ratio at capacity boundary
+  test("applyPassiveIncome preserves gold:ore ratio when capacity constrained", () => {
+    game.minions.pseudodragon = 1; // produces gold
+    game.minions.miner = 1; // produces ore (+capacity)
+    // Set maxCapacity at limit so capacity growth is a no-op
+    const limit = getCurrentCapacityLimit();
+    game.maxCapacity = limit;
+    game.gold = limit - 1;
+    game.ore = 0; // 1 unit of space
+
+    applyPassiveIncome(10); // large window — overflow guaranteed
+
+    expect(game.gold + game.ore).toBeCloseTo(limit, 4);
+    expect(game.gold - (limit - 1)).toBeGreaterThan(0); // gold gets non-zero share
+    expect(game.ore).toBeGreaterThan(0); // ore gets non-zero share
+  });
+
+  // T-005: cross-path regression — gold not starved by ore in any income path
+  test("applyPassiveIncome: gold non-zero when ore dominates but capacity constrained", () => {
+    game.minions.pseudodragon = 1; // gold income
+    game.minions.miner = 10; // heavy ore income (+capacity)
+    const limit = getCurrentCapacityLimit();
+    game.maxCapacity = limit;
+    game.gold = limit - 1;
+    game.ore = 0;
+
+    applyPassiveIncome(100);
+
+    // Gold must receive non-zero share even though ore income is much larger
+    expect(game.gold - (limit - 1)).toBeGreaterThan(0);
+    expect(game.gold + game.ore).toBeCloseTo(limit, 4);
   });
 
   test("trade actions ignore invalid amounts", () => {
