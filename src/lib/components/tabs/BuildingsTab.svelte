@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { game, buyBuilding, buyUpgrade, attractMate } from "$lib/game.svelte.js";
+  import { game, buyBuilding, buyUpgrade, generateSuitor } from "$lib/game.svelte.js";
   import { BUILDINGS } from "$lib/configs/buildings.js";
   import { UPGRADES } from "$lib/configs/upgrades.js";
 
@@ -181,13 +181,20 @@
       The Hatchery prepares future generations. Larger mountain vaults produce
       stronger inherited traits.
     </p>
-    <button
-      onclick={attractMate}
-      disabled={game.gold < 10000}
-      class={game.gold >= 10000 ? "glow" : ""}
-    >
-      Attract Mate (Prestige)
-    </button>
+    {#if game.pendingSuitor}
+      <p class="section-lead" style="color: var(--text-muted);">
+        A suitor awaits in the Events tab.
+      </p>
+      <button disabled>Attract Mate (Suitor Pending)</button>
+    {:else}
+      <button
+        onclick={generateSuitor}
+        disabled={game.gold < 10000}
+        class={game.gold >= 10000 ? "glow" : ""}
+      >
+        Attract Mate (Prestige)
+      </button>
+    {/if}
   </div>
 {/if}
 

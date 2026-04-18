@@ -10,12 +10,11 @@ import {
   calculatePassiveOre,
   calculatePassiveCapacity,
   getCurrentCapacityLimit,
-  resetHoard,
 } from "./game.svelte.js";
 import type { GameState } from "./types.js";
 
 const SAVE_KEY = "dragon_hoard_save";
-const OFFLINE_CAP_SECONDS = 8 * 3600;
+export const OFFLINE_CAP_SECONDS = 8 * 3600;
 
 export type SavedGameData = Partial<GameState> & {
   maxGoldCapacity?: number;
@@ -136,6 +135,13 @@ export function hydrateGameState(data: SavedGameData) {
   if (Array.isArray(data.treasureInventory)) {
     nextState.treasureInventory = data.treasureInventory as typeof nextState.treasureInventory;
   }
+  // T-025: if vault not owned, clear slotted state so effects don't apply
+  if (!nextState.buildings.treasure_vault) {
+    nextState.treasureInventory = nextState.treasureInventory.map((t) => ({
+      ...t,
+      slotted: false,
+    }));
+  }
 
   return nextState;
 }
@@ -162,21 +168,20 @@ export function loadGame() {
         const earnedOre = calculatePassiveOre() * cappedSeconds;
         const earnedCapacity = calculatePassiveCapacity() * cappedSeconds;
 
-        if (earnedGold > 0 || earnedOre > 0) {
-          // Offline capacity mining
-          const capacityLimit = getCurrentCapacityLimit();
-          if (game.maxCapacity < capacityLimit) {
-            game.maxCapacity += earnedCapacity;
-            if (game.maxCapacity > capacityLimit) {
-              game.maxCapacity = capacityLimit;
-            }
+        // T-026: apply income (even if zero) and always show summary when cappedSeconds > 60
+        const capacityLimit = getCurrentCapacityLimit();
+        if (game.maxCapacity < capacityLimit && earnedCapacity > 0) {
+          game.maxCapacity += earnedCapacity;
+          if (game.maxCapacity > capacityLimit) {
+            game.maxCapacity = capacityLimit;
           }
+        }
 
+        if (earnedGold > 0 || earnedOre > 0) {
           game.gold += earnedGold;
           game.ore += earnedOre;
 
           if (game.gold + game.ore > game.maxCapacity) {
-            // Give preference to Ore, then Gold if capped
             if (game.ore > game.maxCapacity) {
               game.ore = game.maxCapacity;
               game.gold = 0;
@@ -184,14 +189,14 @@ export function loadGame() {
               game.gold = game.maxCapacity - game.ore;
             }
           }
-
-          offlineProgressState.data = {
-            rawSeconds,
-            cappedSeconds,
-            goldEarned: earnedGold,
-            oreEarned: earnedOre,
-          };
         }
+
+        offlineProgressState.data = {
+          rawSeconds,
+          cappedSeconds,
+          goldEarned: earnedGold,
+          oreEarned: earnedOre,
+        };
       }
     } catch (e) {
       console.error("Failed to load save file", e);
@@ -227,7 +232,6 @@ export function importSave(jsonData: string) {
 export function hardReset() {
   if (!browser) return;
   localStorage.removeItem(SAVE_KEY);
-  resetHoard();
   replaceGameState(createDefaultGameState());
   saveGame();
 }
