@@ -1,6 +1,6 @@
 ---
 created: "2026-04-18T00:00:00Z"
-last_edited: "2026-04-18T00:00:00Z"
+last_edited: "2026-04-18T21:00:00Z"
 ---
 
 # Cavekit: Proportional Passive Income Distribution
@@ -65,4 +65,16 @@ if available <= 0:
 - See also: cavekit-save-infrastructure.md (offline progress on load, `applyPassiveIncome()` for tab catch-up — both paths modified by this kit)
 - See also: cavekit-progression-systems.md (mountain layer unlocks that raise `maxCapacity`; the shared capacity model is unchanged)
 
+### R2: Offline Summary Amount Semantics
+
+When the offline progress summary is displayed, the `goldEarned` and `oreEarned` values shown must reflect the actually-applied (post-clamp) amounts, not the raw theoretically-earned amounts. This choice must be explicit and tested.
+
+**Acceptance Criteria:**
+- [ ] `OfflineProgressResult.goldEarned` and `.oreEarned` reflect the amounts actually added to the hoard (post-clamp), not raw computed earnings
+- [ ] The offline summary display accurately represents what the player received
+
+**Dependencies:** R1 (offline path must route through `clampPassiveIncome` before summary data is set)
+
 ## Changelog
+
+- 2026-04-18: Added R2 (Offline Summary Amount Semantics) — discovered during inspection (F-005); implementation silently changed semantics of summary fields when routing through clampPassiveIncome, needs explicit requirement

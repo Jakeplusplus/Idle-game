@@ -1,6 +1,6 @@
 ---
 created: "2026-04-18T00:00:00Z"
-last_edited: "2026-04-18T00:00:00Z"
+last_edited: "2026-04-18T21:00:00Z"
 ---
 
 # Build Site
@@ -171,6 +171,72 @@ This test is distinct from T-002/T-003/T-004's per-path ratio tests because it e
 
 ---
 
+## Tier 3 — Remediation Tasks (from /ck:check inspection)
+
+### T-006: Extract `loadGame()` offline income calculation into testable helper + add ratio test
+**Cavekit Requirement:** cavekit-proportional-income/R1 (AC #13)
+**Acceptance Criteria Mapped:**
+- Unit test for `loadGame()` offline path: ratio preserved when over capacity
+**blockedBy:** T-002
+**Effort:** M
+**Description:**
+`loadGame()` in `src/lib/storage.svelte.ts` is browser-gated (`if (!browser) return`) making direct unit testing impossible. Extract the offline income application into a pure function `applyOfflineIncome(state: GameState, elapsedSeconds: number): void` (or returns a delta struct), so the calculation logic can be unit tested without browser APIs.
+
+1. Extract the offline income block (lines ~166-198 in storage.svelte.ts) into `export function applyOfflineIncome(elapsedSeconds: number)` that operates on the imported `game` state directly (no browser dependency).
+2. `loadGame()` calls this function when `cappedSeconds > 60`.
+3. Add test in `src/lib/storage.test.ts` or `game.test.ts`:
+   - Seed `game` near capacity with kobold (gold) + miner (ore) minions
+   - Call `applyOfflineIncome(largeDelta)` directly
+   - Assert `game.gold + game.ore <= maxCapacity`
+   - Assert `deltaGold / (deltaGold + deltaOre)` matches `goldRate / (goldRate + oreRate)` within epsilon
+
+**Files:**
+- Modify: `src/lib/storage.svelte.ts`
+- Create or modify: `src/lib/storage.test.ts`
+
+---
+
+### T-007: Export `applyTick(delta)` from `startGameLoop` scope and add ratio test
+**Cavekit Requirement:** cavekit-proportional-income/R1 (AC #15)
+**Acceptance Criteria Mapped:**
+- Unit test for `tick()` path: per-tick earnings ratio preserved when over capacity
+**blockedBy:** T-004
+**Effort:** M
+**Description:**
+`tick()` in `game.svelte.ts` is a non-exported nested closure inside `startGameLoop()`, making direct unit testing impossible. Extract the per-frame passive income application into `export function applyTick(delta: number)` that can be called directly in tests.
+
+1. Extract the `clampPassiveIncome` call and surrounding capacity/income logic from `tick()` into `export function applyTick(delta: number)`. Keep `tick()` as a thin wrapper that calls `applyTick(clampedDelta)`.
+2. Add test in `src/lib/game.test.ts`:
+   - Seed `game` at `getCurrentCapacityLimit()` for maxCapacity, gold near full
+   - Set kobold + miner minions for mixed gold/ore income
+   - Call `applyTick(10)` (large delta, but tick uses it as raw seconds for income)
+   - Assert `game.gold + game.ore <= maxCapacity`
+   - Assert both `deltaGold > 0` and `deltaOre > 0`
+
+Note: `applyTick` receives pre-clamped delta; the 1s clamp stays inside `tick()`.
+
+**Files:**
+- Modify: `src/lib/game.svelte.ts`
+- Modify: `src/lib/game.test.ts`
+
+---
+
+### T-008: Expand T-005 regression to cover offline and tick paths
+**Cavekit Requirement:** cavekit-proportional-income/R1 (AC #16 regression)
+**blockedBy:** T-006, T-007
+**Effort:** S
+**Description:**
+Extend the regression tests to cover all three paths as the plan specified. With T-006 (`applyOfflineIncome`) and T-007 (`applyTick`) exported:
+
+1. Add offline-path regression: seed near capacity, call `applyOfflineIncome(large)`, assert gold non-zero and ore non-zero.
+2. Add tick-path regression: seed near capacity, call `applyTick(large)`, assert gold non-zero and ore non-zero.
+3. Optionally add ratio assertion (delta ratio matches rate ratio) for both.
+
+**Files:**
+- Modify: `src/lib/game.test.ts` or `src/lib/storage.test.ts`
+
+---
+
 ## Summary
 
 | Task  | Tier | Effort | Paths Touched                          |
@@ -180,6 +246,9 @@ This test is distinct from T-002/T-003/T-004's per-path ratio tests because it e
 | T-003 | 1    | M      | `applyPassiveIncome()` visibility path |
 | T-004 | 1    | M      | `tick()` in-loop path                  |
 | T-005 | 2    | S      | Cross-cutting regression               |
+| T-006 | 3    | M      | `loadGame()` offline path test seam    |
+| T-007 | 3    | M      | `tick()` path test seam + test         |
+| T-008 | 3    | S      | Regression expansion (all 3 paths)     |
 
 Tier 1 tasks T-002, T-003, T-004 are independent of each other and can execute in parallel once T-001 lands.
 

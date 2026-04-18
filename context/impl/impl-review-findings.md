@@ -1,10 +1,15 @@
 ---
 created: "2026-04-17T00:00:00Z"
-last_edited: "2026-04-17T00:00:00Z"
+last_edited: "2026-04-18T21:00:00Z"
 ---
 
 # Review Findings
 
+| F-011: No loadGame() offline-path ratio test (browser-gated seam) | P1 | src/lib/storage.svelte.ts | NEW | T-006 |
+| F-012: No tick() ratio test (non-exported closure) | P2 | src/lib/game.svelte.ts | NEW | T-007 |
+| F-013: T-005 regression covers only applyPassiveIncome, not all 3 paths | P2 | src/lib/game.test.ts | NEW | T-008 |
+| F-014: clampPassiveIncome silently zeros mixed-sign inputs (undocumented precondition) | P3 | src/lib/income.ts | NEW | — |
+| F-015: offlineProgressState now shows applied (clamped) amounts — semantics changed | P3 | src/lib/storage.svelte.ts | NEW | R2 |
 | Finding | Severity | File | Status | Task |
 |---------|----------|------|--------|------|
 | F-001: Suitor system unreachable — attractMate still wired | P0 | src/lib/components/tabs/BuildingsTab.svelte:185 | NEW | T-022/T-023 |
