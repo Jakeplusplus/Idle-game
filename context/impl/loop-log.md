@@ -5,6 +5,13 @@ last_edited: "2026-04-17T02:00:00Z"
 
 # Loop Log
 
+### Wave 2 — 2026-04-18 (proportional-income site)
+
+- T-001: clampPassiveIncome helper — DONE. Files: income.ts, income.test.ts. 7 tests P.
+- T-002/T-003/T-004: all three income paths routed through helper — DONE. Files: storage.svelte.ts, game.svelte.ts, game.test.ts. 46 tests P, vp check clean.
+- T-005: cross-path regression — DONE. Tests in game.test.ts. All pass.
+- Pre-existing slotTreasure/unslotTreasure test bug fixed (missing treasure_vault=true).
+
 ### Wave 1 — 2026-04-17
 
 - T-001/T-002: save schema version + hydration default-fill — DONE. Files: types.ts, gameState.svelte.ts, storage.svelte.ts, game.test.ts. Build P, Tests blocked (pre-existing runner failure).
