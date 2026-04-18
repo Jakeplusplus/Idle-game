@@ -1,6 +1,6 @@
 ---
 created: "2026-04-17T02:00:00Z"
-last_edited: "2026-04-17T08:00:00Z"
+last_edited: "2026-04-18T00:00:00Z"
 ---
 
 # Implementation Tracking
@@ -30,9 +30,11 @@ Build site: context/plans/build-site.md
 | T-019 | DONE   | slotTreasure/unslotTreasure; slotted effects via getAllActivePassives(); VAULT_SLOTS gate         |
 | T-020 | DONE   | getTreasureSellPrice()/sellTreasure(); beauty multiplier; sell UI in TreasureVault                |
 | T-021 | DONE   | luck chip title tooltip in DragonCard; unit test confirms drop rate + rarity distribution         |
-| T-022 | TODO   | Wire generateSuitor to prestige button; disable when suitor pending; from F-001                   |
-| T-023 | TODO   | Delete attractMate() and all imports; from F-001/F-006                                            |
-| T-024 | TODO   | Fix treasure drop tick rate — 1Hz accumulator in tick(); from F-002                               |
-| T-025 | TODO   | Vault ownership gate in getAllActivePassives + hydration; from F-004                               |
-| T-026 | TODO   | Offline summary trigger for zero-income players; from F-003                                       |
-| T-027 | TODO   | Remove redundant resetHoard() call from hardReset(); from F-005                                   |
+| T-022 | DONE   | BuildingsTab imports generateSuitor; pending suitor disables button with message                  |
+| T-023 | DONE   | attractMate() deleted from game.svelte.ts; no imports remain anywhere                             |
+| T-024 | DONE   | minerTickTimer accumulator in tick(); rollTreasureDrop fires ≤1/sec                              |
+| T-025 | DONE   | getAllActivePassives gates on buildings.treasure_vault; hydrateGameState clears slotted w/o vault |
+| T-026 | DONE   | offlineProgressState.data set outside earnedGold/Ore guard; shows for zero-income players         |
+| T-027 | DONE   | hardReset() no longer calls resetHoard(); replaceGameState(createDefaultGameState()) only         |
+| T-028 | DONE   | visibilitychange listener: save on hide, applyPassiveIncome(capped) on show; no summary triggered |
+| T-029 | DONE   | Tests in game.test.ts: vault gate, hydration clear, applyPassiveIncome, no summary on catch-up    |

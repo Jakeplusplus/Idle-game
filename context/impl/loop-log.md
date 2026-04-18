@@ -34,3 +34,8 @@ Next: Tier 1 — T-009, T-011, T-012, T-014 (all unblocked by T-001/T-008 DONE).
 - T-021: Luck stat wiring + DragonCard tooltip — DONE. Files: DragonCard.svelte, game.test.ts. Build P.
 
 All 21 tasks DONE. Build complete.
+
+### Wave 3 — 2026-04-18
+
+- T-022–T-029: All tier-4 bug fixes + T-028/T-029 visibility catch-up — DONE. Files: game.svelte.ts, storage.svelte.ts, BuildingsTab.svelte, game.test.ts. Build P (vp check --fix clean), Tests P. Commit ef51226.
+- attractMate deleted, generateSuitor wired, 1Hz accumulator, vault gate, offline summary fix, hardReset cleanup, visibilitychange listener.
