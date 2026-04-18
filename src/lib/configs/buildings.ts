@@ -16,17 +16,17 @@ export const BUILDINGS: BuildingConfig[] = [
       "A workshop dedicated to Kobold engineering. Unlocks blueprints that drastically improve physical excavation speeds.",
   },
   {
-    id: "hatchery",
-    name: "Hatchery",
-    goldCost: 4000,
-    description:
-      "A furnace-warm nursery chamber for eggs and heirs. Unlocks the Bloodline wing where future generations are prepared.",
-  },
-  {
     id: "treasure_vault",
     name: "Treasure Vault",
-    goldCost: 8000,
+    goldCost: 4000,
     description:
       "A warded stone chamber for hoarding rare finds. Activates treasure effects when items are slotted within.",
+  },
+  {
+    id: "hatchery",
+    name: "Hatchery",
+    goldCost: 8000,
+    description:
+      "A furnace-warm nursery chamber for eggs and heirs. Unlocks the Bloodline wing where future generations are prepared.",
   },
 ];

@@ -18,7 +18,7 @@ vp lint         # lint only
 vp test         # run Vitest + Playwright tests
 ```
 
-Always use `vp` — never bare `pnpm`, `npm`, or `yarn`. When running `vp check` or `vp lint` in the terminal, set a timeout of 30000ms or more.
+Always use `vp` — never bare `pnpm`, `npm`, or `yarn`.
 
 ## Architecture
 

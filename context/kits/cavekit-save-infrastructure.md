@@ -74,6 +74,7 @@ Dependencies: none
 ## Cross-References
 
 - All other kits depend on this kit's R1 before adding new state fields
+- See also: cavekit-proportional-income.md — modifies the offline-progress (R2) and tab catch-up (R4) income application paths to use proportional gold/ore distribution
 
 ## Changelog
 
