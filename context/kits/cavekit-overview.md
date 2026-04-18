@@ -16,8 +16,8 @@ See: `DESIGN.md` for visual design system (Misty Mountain Lair theme).
 
 | Domain              | Cavekit File                   | Requirements | Status | Description                                     |
 | ------------------- | ------------------------------ | ------------ | ------ | ----------------------------------------------- |
-| Save Infrastructure | cavekit-save-infrastructure.md | 3            | READY  | Migration layer, offline cap, rAF delta clamp   |
-| Suitor Prestige     | cavekit-suitor-prestige.md     | 6            | READY  | Suitor event system replacing attractMate       |
+| Save Infrastructure | cavekit-save-infrastructure.md | 4            | READY  | Migration layer, offline cap, rAF delta clamp, tab catch-up |
+| Suitor Prestige     | cavekit-suitor-prestige.md     | 7            | READY  | Suitor event system replacing attractMate       |
 | Treasure System     | cavekit-treasure-system.md     | 6            | READY  | Luck-driven drops, Vault building, trading      |
 | Progression Systems | cavekit-progression-systems.md | 4            | READY  | Layers 4-7 unlocks, beauty trade, armor cleanup |
 

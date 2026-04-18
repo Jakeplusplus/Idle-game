@@ -53,6 +53,17 @@ Acceptance Criteria:
 
 Dependencies: none
 
+### R4: Tab Visibility Catch-up
+**Description:** When the browser tab transitions from hidden to visible, passive income earned during the hidden period is applied to game state silently. When the tab goes hidden, the game state is saved so `lastSaveTime` is current.
+**Acceptance Criteria:**
+- [ ] Tab going hidden triggers a game save (updates lastSaveTime)
+- [ ] Tab becoming visible after ≥1 second hidden applies passive gold, ore, and capacity earned for the elapsed duration
+- [ ] Hidden duration is capped at the same 8-hour offline maximum (R2) before income is applied
+- [ ] Progress applies silently — no UI shown; the offline summary screen (R2) is not triggered
+- [ ] Hidden duration < 1 second: no catch-up applied
+- [ ] Catch-up calculation is independent of the per-frame delta clamp (R3); the full elapsed duration (pre-cap) is used directly
+**Dependencies:** R1 (lastSaveTime field), R2 (offline progress calculation logic reused)
+
 ## Out of Scope
 
 - Changing save format beyond adding a version field
@@ -67,3 +78,4 @@ Dependencies: none
 ## Changelog
 
 - 2026-04-17: Strengthened R2 summary trigger criterion — screen must appear even with zero earnings — finding F-003; implementation gated summary on `earnedGold > 0 || earnedOre > 0`
+- 2026-04-17: Added R4 Tab Visibility Catch-up

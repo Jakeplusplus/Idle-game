@@ -5,7 +5,7 @@ last_edited: "2026-04-17T00:00:00Z"
 
 # Build Site
 
-27 tasks across 5 tiers from 4 kits. (T-001–T-021 DONE; T-022–T-027 added after inspection cycle.)
+29 tasks across 5 tiers from 4 kits. (T-001–T-021 DONE; T-022–T-027 added after inspection cycle; T-028–T-029 added for save-infrastructure R4.)
 
 ---
 
@@ -130,6 +130,7 @@ last_edited: "2026-04-17T00:00:00Z"
 | T-012 | Treasure inventory state + drop tick hook                   | cavekit-treasure-system.md     | R1          | T-001     | M      |
 | T-013 | Treasure rarity tiers + luck weighting + definitions config | cavekit-treasure-system.md     | R2          | T-012     | M      |
 | T-014 | Locked mountain layer visual state                          | cavekit-progression-systems.md | R3          | T-008     | S      |
+| T-028 | Tab visibility catch-up (save on hide, apply on show)       | cavekit-save-infrastructure.md | R4          | T-001, T-003, T-005 | S      |
 
 ### T-009 — Suitor generation + one-pending gating
 
@@ -228,6 +229,7 @@ last_edited: "2026-04-17T00:00:00Z"
 | T-015 | EventsTab suitor card UI                     | cavekit-suitor-prestige.md | R4          | T-009, T-010, T-011 | L      |
 | T-016 | Treasure Vault building + BuildingsTab entry | cavekit-treasure-system.md | R3          | T-012               | M      |
 | T-017 | Treasure Vault display UI                    | cavekit-treasure-system.md | R3          | T-016               | M      |
+| T-029 | Unit test: tab visibility catch-up           | cavekit-save-infrastructure.md | R4      | T-028               | S      |
 
 ### T-015 — EventsTab suitor card UI
 
@@ -359,11 +361,12 @@ last_edited: "2026-04-17T00:00:00Z"
 | Tier | Tasks | Effort       |
 | ---- | ----- | ------------ |
 | 0    | 8     | 3S / 4M / 1L |
-| 1    | 6     | 1S / 3M / 2L |
-| 2    | 3     | 0S / 2M / 1L |
+| 1    | 7     | 2S / 3M / 2L |
+| 2    | 4     | 1S / 2M / 1L |
 | 3    | 4     | 1S / 1M / 2L |
+| 4    | 6     | 5S / 1XS     |
 
-**Total: 21 tasks, 4 tiers**
+**Total: 29 tasks, 5 tiers**
 
 ## Coverage Matrix
 
@@ -384,6 +387,13 @@ last_edited: "2026-04-17T00:00:00Z"
 | save-infrastructure | R3  | Delta is clamped to Math.min(delta, 1.0) before any income calculation in the game loop                                 | T-005   | COVERED |
 | save-infrastructure | R3  | A 30-second delta produces identical income to a 1-second delta                                                         | T-005   | COVERED |
 | save-infrastructure | R3  | Unit test: delta of 30s → same income outcome as delta of 1s                                                            | T-005   | COVERED |
+| save-infrastructure | R4  | Tab going hidden triggers a game save (updates lastSaveTime)                                                            | T-028   | COVERED |
+| save-infrastructure | R4  | Tab becoming visible after ≥1 second hidden applies passive gold, ore, and capacity earned for the elapsed duration    | T-028   | COVERED |
+| save-infrastructure | R4  | Hidden duration is capped at the same 8-hour offline maximum (R2) before income is applied                              | T-028   | COVERED |
+| save-infrastructure | R4  | Progress applies silently — no UI shown; the offline summary screen (R2) is not triggered                              | T-028   | COVERED |
+| save-infrastructure | R4  | Hidden duration < 1 second: no catch-up applied                                                                         | T-028   | COVERED |
+| save-infrastructure | R4  | Catch-up calculation is independent of the per-frame delta clamp (R3); the full elapsed duration (pre-cap) is used directly | T-028 | COVERED |
+| save-infrastructure | R4  | Unit test: visibility catch-up (save on hide, no-op under 1s, normal catch-up, 8h cap, summary not triggered)           | T-029   | COVERED |
 | suitor-prestige     | R1  | Suitor generated when gold >= 10000                                                                                     | T-009   | COVERED |
 | suitor-prestige     | R1  | Stat pool size = floor(sqrt(gold / 10000)), minimum 1                                                                   | T-009   | COVERED |
 | suitor-prestige     | R1  | Pool size shown to player before accept ("N stat points available")                                                     | T-009   | COVERED |
@@ -477,7 +487,7 @@ last_edited: "2026-04-17T00:00:00Z"
 | progression-systems | R4  | Armor is not included in any suitor stat pool (enforced by cavekit-suitor-prestige.md R6)                               | T-006   | COVERED |
 | progression-systems | R4  | Code comment present indicating armor activates with future map system                                                  | T-006   | COVERED |
 
-**Coverage: 104/104 criteria (100%)**
+**Coverage: 111/111 criteria (100%)**
 
 ## Dependency Graph
 
@@ -504,7 +514,13 @@ graph LR
     T-019[T-019 Slotting mechanic]
     T-020[T-020 Treasure sell]
     T-021[T-021 Luck wiring + tooltip]
+    T-028[T-028 Tab visibility catch-up]
+    T-029[T-029 Test: visibility catch-up]
 
+    T-001 --> T-028
+    T-003 --> T-028
+    T-005 --> T-028
+    T-028 --> T-029
     T-001 --> T-009
     T-001 --> T-011
     T-001 --> T-012
@@ -600,6 +616,31 @@ graph LR
 - `hardReset()` no longer calls `resetHoard()`
 - Behavior of `hardReset()` is unchanged
 - `vp check` passes clean
+
+### T-028 — Tab visibility catch-up (save on hide, apply on show)
+
+**Kit:** cavekit-save-infrastructure.md R4
+**Effort:** S
+**Depends on:** T-001, T-003, T-005
+**Description:** Add a `visibilitychange` listener (registered alongside the game loop lifecycle) that handles two transitions. On `document.hidden === true`: call `saveGame()` so `lastSaveTime` reflects the moment of hiding. On `document.hidden === false`: compute `elapsedSeconds = (Date.now() - lastSaveTime) / 1000`; if `elapsedSeconds < 1`, do nothing; otherwise cap to `Math.min(elapsedSeconds, 8 * 3600)` (reuse the same constant/helper as R2) and apply passive gold, ore, and capacity earned for the (full pre-cap) elapsed duration directly — bypassing the per-frame delta clamp from R3 (the clamp only governs in-loop ticks, not catch-up). Apply silently: do NOT trigger the offline summary screen state used by R2. Remove the listener on teardown to avoid leaks.
+**Acceptance:**
+
+- Tab going hidden triggers a game save (updates lastSaveTime)
+- Tab becoming visible after ≥1 second hidden applies passive gold, ore, and capacity earned for the elapsed duration
+- Hidden duration is capped at the same 8-hour offline maximum (R2) before income is applied
+- Progress applies silently — no UI shown; the offline summary screen (R2) is not triggered
+- Hidden duration < 1 second: no catch-up applied
+- Catch-up calculation is independent of the per-frame delta clamp (R3); the full elapsed duration (pre-cap) is used directly
+
+### T-029 — Unit test: tab visibility catch-up
+
+**Kit:** cavekit-save-infrastructure.md R4
+**Effort:** S
+**Depends on:** T-028
+**Description:** Add a Vitest covering the visibility catch-up path. Mock `document.visibilityState` / dispatch `visibilitychange` events (or invoke the handler directly with a stubbed `Date.now`). Assert: (1) hide event causes `lastSaveTime` to update, (2) show event after 0.5s applies no income, (3) show event after 10s applies the expected gold/ore/capacity for 10s, (4) show event after 30 days applies exactly 8 hours of passive income (same cap as R2), (5) the offline summary state is NOT set after a visibility-driven catch-up.
+**Acceptance:**
+
+- Unit test covers: save on hide, no-op under 1s, normal catch-up, 8h cap, summary not triggered
 
 ---
 
