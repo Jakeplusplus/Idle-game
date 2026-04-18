@@ -1,6 +1,6 @@
 import { browser } from "$app/environment";
 import { game } from "./gameState.svelte.js";
-import { saveGame, loadGame } from "./storage.svelte.js";
+import { saveGame, loadGame, OFFLINE_CAP_SECONDS } from "./storage.svelte.js";
 import type { Minions } from "./types.js";
 import { MOUNTAIN_LAYERS } from "./configs/mountain.js";
 import { MINIONS } from "./configs/minions.js";
@@ -35,15 +35,18 @@ import type {
 function getAllActivePassives(): PassiveEffect[] {
   const passives: PassiveEffect[] = [...game.lineagePassives];
   if (game.activeGenerationPassive) passives.push(game.activeGenerationPassive);
-  for (const t of game.treasureInventory) {
-    if (t.slotted) {
-      passives.push({
-        id: `treasure_${t.id}`,
-        name: t.name,
-        description: t.flavorText,
-        type: t.effectType,
-        magnitude: t.effectMagnitude,
-      });
+  // T-025: slotted treasure effects only apply when vault is owned
+  if (game.buildings.treasure_vault) {
+    for (const t of game.treasureInventory) {
+      if (t.slotted) {
+        passives.push({
+          id: `treasure_${t.id}`,
+          name: t.name,
+          description: t.flavorText,
+          type: t.effectType,
+          magnitude: t.effectMagnitude,
+        });
+      }
     }
   }
   return passives;
@@ -391,27 +394,6 @@ export function acceptSuitor() {
   saveGame();
 }
 
-export function attractMate() {
-  if (game.gold < 10000) return false;
-
-  let totalPoints = Math.floor(game.gold / 10000);
-
-  // Armor excluded from suitor stat pool — activates with future map system.
-  for (let i = 0; i < totalPoints; i++) {
-    const rand = Math.floor(Math.random() * 3);
-    if (rand === 0) game.stats.clickPower += 1;
-    else if (rand === 1) game.stats.luck += 1;
-    else game.stats.beauty += 1;
-  }
-
-  resetHoard();
-  game.generation += 1;
-  game.dragonName = generateFantasyName("dragon");
-
-  saveGame();
-  return true;
-}
-
 export function trainMinion(type: keyof Minions, cost: number) {
   if (game.gold >= cost) {
     game.gold -= cost;
@@ -425,6 +407,28 @@ export function trainMinion(type: keyof Minions, cost: number) {
   return false;
 }
 
+/** Apply passive income for a given duration in seconds (used for offline/visibility catch-up). */
+export function applyPassiveIncome(seconds: number) {
+  const capacityLimit = getCurrentCapacityLimit();
+  const earnedCapacity = calculatePassiveCapacity() * seconds;
+  if (game.maxCapacity < capacityLimit && earnedCapacity > 0) {
+    game.maxCapacity += earnedCapacity;
+    if (game.maxCapacity > capacityLimit) game.maxCapacity = capacityLimit;
+  }
+
+  const earnedOre = calculatePassiveOre() * seconds;
+  if (earnedOre > 0 && game.gold + game.ore < game.maxCapacity) {
+    game.ore += earnedOre;
+    if (game.gold + game.ore > game.maxCapacity) game.ore = game.maxCapacity - game.gold;
+  }
+
+  const earnedGold = calculatePassiveIncome() * seconds;
+  if (earnedGold > 0 && game.gold + game.ore < game.maxCapacity) {
+    game.gold += earnedGold;
+    if (game.gold + game.ore > game.maxCapacity) game.gold = game.maxCapacity - game.ore;
+  }
+}
+
 let loopStarted = false;
 export function startGameLoop() {
   if (!browser || loopStarted) return;
@@ -434,6 +438,7 @@ export function startGameLoop() {
 
   let lastTick = performance.now();
   let saveTimer = 0;
+  let minerTickTimer = 0;
 
   function tick(now: number) {
     const rawDelta = (now - lastTick) / 1000;
@@ -459,9 +464,13 @@ export function startGameLoop() {
       }
     }
 
-    // Treasure drop on miner passive tick
+    // T-024: 1Hz accumulator — rollTreasureDrop fires at most once per second
     if (game.minions.miner > 0) {
-      rollTreasureDrop();
+      minerTickTimer += delta;
+      if (minerTickTimer >= 1.0) {
+        minerTickTimer -= 1.0;
+        rollTreasureDrop();
+      }
     }
 
     const incomePerSec = calculatePassiveIncome();
@@ -481,6 +490,19 @@ export function startGameLoop() {
 
     requestAnimationFrame(tick);
   }
+
+  // T-028: tab visibility catch-up — save on hide, apply passive income on show
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      saveGame();
+    } else {
+      const elapsedSeconds = (Date.now() - game.lastSaveTime) / 1000;
+      if (elapsedSeconds < 1) return;
+      const cappedSeconds = Math.min(elapsedSeconds, OFFLINE_CAP_SECONDS);
+      applyPassiveIncome(cappedSeconds);
+    }
+  }
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 
   requestAnimationFrame(tick);
 }
