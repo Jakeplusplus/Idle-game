@@ -147,6 +147,15 @@ export function hydrateGameState(data: SavedGameData) {
   return nextState;
 }
 
+export function applyOfflineIncome(elapsedSeconds: number): { gold: number; ore: number } {
+  const earnedGold = calculatePassiveIncome() * elapsedSeconds;
+  const earnedOre = calculatePassiveOre() * elapsedSeconds;
+  const applied = clampPassiveIncome(earnedGold, earnedOre, game.gold, game.ore, game.maxCapacity);
+  game.gold += applied.gold;
+  game.ore += applied.ore;
+  return applied;
+}
+
 export function saveGame() {
   if (!browser) return;
   game.lastSaveTime = Date.now();
@@ -165,8 +174,6 @@ export function loadGame() {
       const rawSeconds = (Date.now() - game.lastSaveTime) / 1000;
       const cappedSeconds = Math.min(rawSeconds, OFFLINE_CAP_SECONDS);
       if (cappedSeconds > 60) {
-        const earnedGold = calculatePassiveIncome() * cappedSeconds;
-        const earnedOre = calculatePassiveOre() * cappedSeconds;
         const earnedCapacity = calculatePassiveCapacity() * cappedSeconds;
 
         // T-026: apply income (even if zero) and always show summary when cappedSeconds > 60
@@ -178,15 +185,7 @@ export function loadGame() {
           }
         }
 
-        const applied = clampPassiveIncome(
-          earnedGold,
-          earnedOre,
-          game.gold,
-          game.ore,
-          game.maxCapacity,
-        );
-        game.gold += applied.gold;
-        game.ore += applied.ore;
+        const applied = applyOfflineIncome(cappedSeconds);
 
         offlineProgressState.data = {
           rawSeconds,

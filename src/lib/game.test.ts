@@ -2,9 +2,11 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import {
   acceptSuitor,
   applyPassiveIncome,
+  applyTick,
   buyOre,
   buyUpgrade,
   calculatePassiveIncome,
+  calculatePassiveOre,
   calculateTreasureDropChance,
   clickBurrow,
   declineSuitor,
@@ -630,5 +632,51 @@ describe("game rules", () => {
 
     expect(game.gold).toBe(100);
     expect(game.ore).toBe(50);
+  });
+
+  // T-007: applyTick() tick-path ratio preservation
+  test("applyTick: gold + ore combined do not exceed maxCapacity when per-tick earnings overflow", () => {
+    game.minions.pseudodragon = 5;
+    game.minions.miner = 2;
+    const limit = getCurrentCapacityLimit();
+    game.maxCapacity = limit;
+    // combined = 90%, leaving 10% shared headroom
+    game.gold = limit * 0.45;
+    game.ore = limit * 0.45;
+
+    applyTick(10);
+
+    expect(game.gold + game.ore).toBeLessThanOrEqual(limit + 1e-9);
+  });
+
+  test("applyTick: gold:ore ratio preserved when per-tick earnings exceed remaining shared capacity", () => {
+    game.minions.pseudodragon = 3;
+    game.minions.miner = 1;
+    const limit = getCurrentCapacityLimit();
+    game.maxCapacity = limit;
+    // combined = 90%, leaving 10% shared headroom
+    game.gold = limit * 0.45;
+    game.ore = limit * 0.45;
+
+    const goldRate = calculatePassiveIncome();
+    const oreRate = calculatePassiveOre();
+    const startGold = game.gold;
+    const startOre = game.ore;
+
+    applyTick(10);
+
+    const deltaGold = game.gold - startGold;
+    const deltaOre = game.ore - startOre;
+    const total = deltaGold + deltaOre;
+
+    expect(total).toBeGreaterThan(0);
+    expect(deltaGold).toBeGreaterThan(0);
+    expect(deltaOre).toBeGreaterThan(0);
+
+    if (goldRate + oreRate > 0) {
+      const actualRatio = deltaGold / total;
+      const expectedRatio = goldRate / (goldRate + oreRate);
+      expect(actualRatio).toBeCloseTo(expectedRatio, 3);
+    }
   });
 });

@@ -424,6 +424,14 @@ export function applyPassiveIncome(seconds: number) {
   game.ore += applied.ore;
 }
 
+export function applyTick(delta: number): void {
+  const tickGold = calculatePassiveIncome() * delta;
+  const tickOre = calculatePassiveOre() * delta;
+  const applied = clampPassiveIncome(tickGold, tickOre, game.gold, game.ore, game.maxCapacity);
+  game.gold += applied.gold;
+  game.ore += applied.ore;
+}
+
 let loopStarted = false;
 export function startGameLoop() {
   if (!browser || loopStarted) return;
@@ -440,9 +448,7 @@ export function startGameLoop() {
     const delta = Math.min(rawDelta, 1.0);
     lastTick = now;
 
-    const totalOrePerSec = calculatePassiveOre();
     const totalCapacityPerSec = calculatePassiveCapacity();
-    const incomePerSec = calculatePassiveIncome();
 
     const capacityLimit = getCurrentCapacityLimit();
     if (game.maxCapacity < capacityLimit && totalCapacityPerSec > 0) {
@@ -461,11 +467,7 @@ export function startGameLoop() {
       }
     }
 
-    const tickGold = incomePerSec * delta;
-    const tickOre = totalOrePerSec * delta;
-    const applied = clampPassiveIncome(tickGold, tickOre, game.gold, game.ore, game.maxCapacity);
-    game.gold += applied.gold;
-    game.ore += applied.ore;
+    applyTick(delta);
 
     saveTimer += delta;
     if (saveTimer >= 5) {
