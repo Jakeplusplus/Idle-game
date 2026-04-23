@@ -360,7 +360,7 @@ describe("game rules", () => {
 
     let commonAt0 = 0;
     let commonAt10 = 0;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 1000; i++) {
       if (rollTreasureRarity(0) === "Common") commonAt0++;
       if (rollTreasureRarity(10) === "Common") commonAt10++;
     }
@@ -486,10 +486,10 @@ describe("game rules", () => {
   });
 
   // T-013: treasure rarity tiers + luck weighting
-  test("luck=10 produces fewer Common treasures than luck=0 over 100 rolls", () => {
+  test("luck=10 produces fewer Common treasures than luck=0 over 1000 rolls", () => {
     let commonAt0 = 0;
     let commonAt10 = 0;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 1000; i++) {
       if (rollTreasureRarity(0) === "Common") commonAt0++;
       if (rollTreasureRarity(10) === "Common") commonAt10++;
     }
@@ -497,10 +497,10 @@ describe("game rules", () => {
   });
 
   // T-010: beauty-weighted rarity roll
-  test("beauty=20 produces fewer Common suitors than beauty=0 over 100 rolls", () => {
+  test("beauty=20 produces fewer Common suitors than beauty=0 over 1000 rolls", () => {
     let commonAt0 = 0;
     let commonAt20 = 0;
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 1000; i++) {
       if (rollSuitorRarity(0) === "Common") commonAt0++;
       if (rollSuitorRarity(20) === "Common") commonAt20++;
     }

@@ -23,10 +23,11 @@ Always use `vp` — never bare `pnpm`, `npm`, or `yarn`.
 State, logic, and persistence are strictly separated:
 
 - `src/lib/gameState.svelte.ts` — central reactive state (`$state` rune), no logic
-- `src/lib/game.svelte.ts` — all game logic (clickGold, trainMinion, attractMate, startGameLoop); mutates gameState
-- `src/lib/storage.svelte.ts` — LocalStorage persistence + offline progress calculation on load
+- `src/lib/game.svelte.ts` — all game logic (clickGold, trainMinion, generateSuitor, acceptSuitor, startGameLoop); mutates gameState
+- `src/lib/storage.svelte.ts` — LocalStorage persistence + offline progress; exports `applyOfflineIncome(elapsedSeconds)`
+- `src/lib/income.ts` — pure `clampPassiveIncome()` helper; single source for proportional capacity clamping across all passive income paths
 - `src/lib/types.ts` — TypeScript interfaces for game entities
-- `src/lib/config.ts` — static data (MOUNTAIN_LAYERS array, 8 progressive layers)
+- `src/lib/configs/` — static data split by domain (buildings, minions, mountain, passives, suitors, trading, treasures, upgrades)
 - `src/routes/+page.svelte` — single-page UI, no business logic
 
 ## Code Architecture
@@ -39,12 +40,14 @@ State, logic, and persistence are strictly separated:
 ## Key Game Systems
 
 - **Click**: `clickGold()` adds gold based on `stats.clickPower`
-- **Passive income**: game loop (1s tick) applies minion gold/sec; miners generate ore instead
-- **Capacity gating**: ore from miners unlocks mountain layer progression, each layer increases max gold capacity
+- **Passive income**: game loop (1s tick) applies minion gold/sec; miners generate ore instead; delta clamped to 1s max; all passive gold+ore routed through `clampPassiveIncome()` in `income.ts` to preserve ratio against shared capacity
+- **Capacity gating**: ore from miners unlocks mountain layer progression (layers 0–7), each layer increases max gold capacity
 - **Cost scaling**: minion costs scale at 1.15× per unit owned
-- **Prestige**: `attractMate()` resets hoard at 10k+ gold, increments generation, randomly boosts stats
-- **Offline progress**: on load, `storage.svelte.ts` calculates earnings since `lastSaveTime` and applies them
-- **Persistence**: `saveGame()` is called every 5 seconds via the game loop
+- **Suitor prestige**: `generateSuitor()` triggers at gold ≥ 10k; suitor has rarity (beauty-weighted), pre-allocated stat points, and a generation passive drawn from config pools; `acceptSuitor()` applies stats → sets activeGenerationPassive → appends lineagePassives → calls `resetHoard()`; one pending suitor at a time
+- **Passives**: `activeGenerationPassive` (current generation) + `lineagePassives[]` (append-only across all generations) apply additively to income/stats; config-driven pools per rarity tier
+- **Treasure system**: `rollTreasureDrop()` fires at most 1/sec via accumulator; drops go to `treasureInventory[]` as unslotted (inert); `Treasure Vault` building (8000g, wiped on reset) enables slotting; slotted treasures apply effects immediately; sell via `sellTreasure()` with beauty multiplier
+- **Offline progress**: on load, `applyOfflineIncome(elapsedSeconds)` in `storage.svelte.ts` applies capped (8h max) earnings; shows `OfflineSummary.svelte` panel when elapsed > 60s; tab visibility events trigger silent catch-up on show, save on hide
+- **Persistence**: `saveGame()` called every 5 seconds + on tab hide; `hydrateGameState()` merges loaded save into fresh default so new fields never arrive as undefined
 
 ## Conventions
 
