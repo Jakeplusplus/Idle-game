@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-@AGENTS.md
-
 ## Project
 
 Dragon Hoard Idle Game — a Svelte 5 idle/incremental game where you manage a dragon's gold hoard, train minions, mine mountain layers, and prestige across generations.

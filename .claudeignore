@@ -1,0 +1,47 @@
+# --- SvelteKit Specific ---
+.svelte-kit/
+build/
+package/
+.vercel/
+.netlify/
+.cloudflare/
+
+# --- Dependency & Lock Files ---
+# These are massive and eat tokens for breakfast.
+# Claude usually only needs to see package.json.
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# --- Static Assets ---
+# Claude doesn't need to "read" images, fonts, or PDFs.
+static/assets/
+static/favicon.png
+**/*.svg
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.ico
+**/*.pdf
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Tests & Coverage ---
+test-results/
+coverage/
+playwright-report/
+.playwright/
+
+# --- IDE & System Files ---
+.vscode/
+.idea/
+.DS_Store
+*.log
+npm-debug.log*
