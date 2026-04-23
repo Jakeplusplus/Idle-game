@@ -54,3 +54,4 @@ State, logic, and persistence are strictly separated:
 - Svelte 5 runes throughout (`$state`, `$derived`, `$effect`) — no legacy Svelte 4 stores
 - All new files in TypeScript
 - Pixel-art retro aesthetic: VT323 font, dark theme, box-shadow buttons — match existing visual style when adding UI
+- DESIGN.md at project root is the canonical source for user-facing components. All UI implementation must reference DESIGN.md tokens and patterns. Agents read this before implementing any user-facing component
