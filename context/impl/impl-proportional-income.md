@@ -17,4 +17,4 @@ Build site: context/plans/build-site-proportional-income.md
 | T-006 | DONE    | applyOfflineIncome(elapsedSeconds) exported from storage.svelte.ts; loadGame() calls it; storage.test.ts ratio + ceiling tests    |
 | T-007 | DONE    | applyTick(delta) exported from game.svelte.ts; tick() calls applyTick(clampedDelta); game.test.ts ratio tests added               |
 | T-008 | DONE    | Tick-path regression in game.test.ts + offline-path regression in storage.test.ts; both assert deltaGold>0 with ore-dominant setup |
-| T-009 | TODO    | R2: test offlineProgressState goldEarned/oreEarned = post-clamp amounts (gap found in cavekit verification)                        |
+| T-009 | DONE    | R2: storage.test.ts asserts applyOfflineIncome return values equal actual applied deltas, less than raw earnings                    |

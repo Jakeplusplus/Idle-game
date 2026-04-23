@@ -5,6 +5,10 @@ last_edited: "2026-04-17T02:00:00Z"
 
 # Loop Log
 
+### Wave 3 — 2026-04-22 (proportional-income site)
+- T-008: expand regression to tick+offline paths — DONE. Files: game.test.ts, storage.test.ts. 52 tests P, vp check clean. Commit 829b303.
+- T-009: R2 gap — test post-clamp summary semantics — DONE. Files: storage.test.ts. 53 tests P. Commit 62fefa5.
+
 ### Wave 2 — 2026-04-18 (proportional-income site)
 
 - T-001: clampPassiveIncome helper — DONE. Files: income.ts, income.test.ts. 7 tests P.
