@@ -62,6 +62,33 @@ test("applyOfflineIncome: gold:ore ratio preserved when capacity constrained", (
   }
 });
 
+// T-009: R2 — returned goldEarned/oreEarned reflect post-clamp applied amounts, not raw earnings
+test("applyOfflineIncome: returned gold and ore equal actual applied amounts when capacity constrained", () => {
+  game.minions.pseudodragon = 3;
+  game.minions.miner = 1;
+  const limit = getCurrentCapacityLimit();
+  game.maxCapacity = limit;
+  game.gold = limit * 0.45;
+  game.ore = limit * 0.45; // 90% full, 10% headroom
+
+  const goldRate = calculatePassiveIncome();
+  const oreRate = calculatePassiveOre();
+  const startGold = game.gold;
+  const startOre = game.ore;
+
+  const result = applyOfflineIncome(10000);
+
+  // result must equal what was actually applied, not raw earnings
+  expect(result.gold).toBeCloseTo(game.gold - startGold, 6);
+  expect(result.ore).toBeCloseTo(game.ore - startOre, 6);
+
+  // raw earnings would be far larger — confirm result is clamped
+  const rawGold = goldRate * 10000;
+  const rawOre = oreRate * 10000;
+  expect(result.gold).toBeLessThan(rawGold);
+  expect(result.ore).toBeLessThan(rawOre);
+});
+
 // T-008: offline-path regression — gold not starved by ore when capacity constrained
 test("applyOfflineIncome: gold non-zero when ore income dominates but capacity constrained", () => {
   game.minions.pseudodragon = 1;

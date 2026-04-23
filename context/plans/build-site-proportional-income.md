@@ -237,6 +237,30 @@ Extend the regression tests to cover all three paths as the plan specified. With
 
 ---
 
+---
+
+## Tier 4 — Post-Build Remediation (R2 gap)
+
+### T-009: Test that offlineProgressState goldEarned/oreEarned reflect post-clamp amounts
+**Cavekit Requirement:** cavekit-proportional-income/R2
+**Acceptance Criteria Mapped:**
+- `OfflineProgressResult.goldEarned` and `.oreEarned` reflect the amounts actually added to the hoard (post-clamp), not raw computed earnings
+- The offline summary display accurately represents what the player received
+**blockedBy:** T-006
+**Effort:** S
+**Description:**
+Code in `storage.svelte.ts` already assigns `goldEarned: applied.gold` and `oreEarned: applied.ore` (post-clamp). No test verifies this semantics. Add a test in `src/lib/storage.test.ts` that:
+1. Seeds `gameState` near capacity so offline income would be clamped (earnedGold + earnedOre > available).
+2. Calls `applyOfflineIncome(large)`.
+3. Reads `offlineProgressState.data.goldEarned` and `offlineProgressState.data.oreEarned`.
+4. Asserts these equal `game.gold - startGold` and `game.ore - startOre` respectively (i.e., post-clamp actual applied amounts).
+5. Asserts they do NOT equal unclamped raw computed amounts (goldRate * elapsed and oreRate * elapsed).
+
+**Files:**
+- Modify: `src/lib/storage.test.ts`
+
+---
+
 ## Summary
 
 | Task  | Tier | Effort | Paths Touched                          |
@@ -249,6 +273,7 @@ Extend the regression tests to cover all three paths as the plan specified. With
 | T-006 | 3    | M      | `loadGame()` offline path test seam    |
 | T-007 | 3    | M      | `tick()` path test seam + test         |
 | T-008 | 3    | S      | Regression expansion (all 3 paths)     |
+| T-009 | 4    | S      | R2: test post-clamp summary semantics  |
 
 Tier 1 tasks T-002, T-003, T-004 are independent of each other and can execute in parallel once T-001 lands.
 
