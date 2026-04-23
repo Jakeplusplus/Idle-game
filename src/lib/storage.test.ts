@@ -61,3 +61,19 @@ test("applyOfflineIncome: gold:ore ratio preserved when capacity constrained", (
     expect(actualRatio).toBeCloseTo(expectedRatio, 3);
   }
 });
+
+// T-008: offline-path regression — gold not starved by ore when capacity constrained
+test("applyOfflineIncome: gold non-zero when ore income dominates but capacity constrained", () => {
+  game.minions.pseudodragon = 1;
+  game.minions.miner = 10;
+  const limit = getCurrentCapacityLimit();
+  game.maxCapacity = limit;
+  game.gold = limit * 0.9;
+  game.ore = 0;
+  const startGold = game.gold;
+
+  applyOfflineIncome(10000);
+
+  expect(game.gold - startGold).toBeGreaterThan(0);
+  expect(game.gold + game.ore).toBeCloseTo(limit, 4);
+});

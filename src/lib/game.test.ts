@@ -620,6 +620,23 @@ describe("game rules", () => {
     expect(game.gold + game.ore).toBeCloseTo(limit, 4);
   });
 
+  // T-008: tick-path regression — gold not starved by ore when capacity constrained
+  test("applyTick: gold non-zero when ore income dominates but capacity constrained", () => {
+    game.minions.pseudodragon = 1;
+    game.minions.miner = 10;
+    const limit = getCurrentCapacityLimit();
+    game.maxCapacity = limit;
+    // Leave only 1 unit of space so 1s of income (pseudodragon+miners) forces overflow
+    game.gold = limit - 1;
+    game.ore = 0;
+    const startGold = game.gold;
+
+    applyTick(10);
+
+    expect(game.gold - startGold).toBeGreaterThan(0);
+    expect(game.gold + game.ore).toBeCloseTo(limit, 4);
+  });
+
   test("trade actions ignore invalid amounts", () => {
     game.gold = 100;
     game.ore = 50;
